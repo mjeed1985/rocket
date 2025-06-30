@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from 'components/ui/Button';
 import Icon from 'components/AppIcon';
 
 const UserNavigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navigationItems = [
     {
@@ -52,6 +53,20 @@ const UserNavigation = () => {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleLogout = () => {
+    // تأكيد تسجيل الخروج
+    const confirmLogout = window.confirm('هل أنت متأكد من تسجيل الخروج؟');
+    
+    if (confirmLogout) {
+      // مسح بيانات المستخدم من localStorage
+      localStorage.removeItem('user');
+      localStorage.removeItem('isAuthenticated');
+      
+      // إعادة توجيه إلى الصفحة الرئيسية
+      navigate('/landing-page', { replace: true });
+    }
   };
 
   return (
@@ -132,6 +147,16 @@ const UserNavigation = () => {
                 />
               </div>
 
+              {/* Logout Button - Desktop */}
+              <Button
+                variant="ghost"
+                size="sm"
+                iconName="LogOut"
+                onClick={handleLogout}
+                className="hidden lg:flex text-error-600 hover:text-error-700 hover:bg-error-50"
+                title="تسجيل الخروج"
+              />
+
               {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
@@ -195,9 +220,7 @@ const UserNavigation = () => {
                       size="sm"
                       iconName="LogOut"
                       className="flex-1 mx-1 text-error-600"
-                      onClick={() => {
-                        console.log('Logout');
-                      }}
+                      onClick={handleLogout}
                     >
                       تسجيل الخروج
                     </Button>

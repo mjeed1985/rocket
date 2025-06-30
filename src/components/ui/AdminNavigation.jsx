@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from 'components/ui/Button';
 import Icon from 'components/AppIcon';
 
 const AdminNavigation = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navigationItems = [
     {
@@ -52,6 +53,20 @@ const AdminNavigation = () => {
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleLogout = () => {
+    // تأكيد تسجيل الخروج
+    const confirmLogout = window.confirm('هل أنت متأكد من تسجيل الخروج؟');
+    
+    if (confirmLogout) {
+      // مسح بيانات المستخدم من localStorage
+      localStorage.removeItem('user');
+      localStorage.removeItem('isAuthenticated');
+      
+      // إعادة توجيه إلى الصفحة الرئيسية
+      navigate('/landing-page', { replace: true });
+    }
   };
 
   return (
@@ -110,11 +125,9 @@ const AdminNavigation = () => {
               variant="ghost"
               size="sm"
               iconName="LogOut"
-              onClick={() => {
-                // Logout logic
-                console.log('Logout');
-              }}
+              onClick={handleLogout}
               className="text-error-600 hover:text-error-700 hover:bg-error-50"
+              title="تسجيل الخروج"
             />
           </div>
         </div>
