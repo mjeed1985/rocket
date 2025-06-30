@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import Icon from 'components/AppIcon';
-import { STRATEGIC_DOMAINS_OPTIONS } from '../../lib/operationalPlanConstants';
+import { STRATEGIC_DOMAINS_OPTIONS } from 'lib/operationalPlanConstants';
 import DomainSelection from '../strategic-goals/DomainSelection';
 import DomainObjectivesCard from '../strategic-goals/DomainObjectivesCard';
 
