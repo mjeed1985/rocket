@@ -6,6 +6,7 @@ import PersonalInfoFields from './PersonalInfoFields';
 import SchoolInfoFields from './SchoolInfoFields';
 import PasswordFields from './PasswordFields';
 import activationCodeService from '../../../services/activationCodeService';
+import userManagementService from '../../../services/userManagementService';
 
 const RegistrationForm = ({ onSuccess }) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -125,10 +126,22 @@ const RegistrationForm = ({ onSuccess }) => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // إنشاء بيانات المستخدم الجديد
+      const userData = {
+        name: formData.principalName,
+        email: formData.email,
+        role: 'user',
+        schoolName: formData.schoolName,
+        schoolLevel: formData.schoolLevel,
+        phoneNumber: formData.phoneNumber,
+        isVerified: true,
+        notes: `تم التسجيل باستخدام كود التفعيل: ${formData.activationCode}`
+      };
+
+      // إضافة المستخدم إلى النظام
+      const newUser = await userManagementService.addUser(userData);
       
-      // Mark the activation code as used
+      // تسجيل استخدام كود التفعيل
       if (validCodeData) {
         const userInfo = {
           name: formData.principalName,
@@ -140,12 +153,11 @@ const RegistrationForm = ({ onSuccess }) => {
         activationCodeService.useCode(formData.activationCode, userInfo);
       }
       
-      // Mock successful registration
-      console.log('Registration data:', formData);
+      console.log('Registration successful:', newUser);
       onSuccess();
     } catch (error) {
       console.error('Registration failed:', error);
-      alert('حدث خطأ أثناء إنشاء الحساب. يرجى المحاولة مرة أخرى.');
+      alert(error.message || 'حدث خطأ أثناء إنشاء الحساب. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsLoading(false);
     }

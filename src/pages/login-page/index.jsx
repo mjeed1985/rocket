@@ -4,70 +4,22 @@ import LoginBackground from './components/LoginBackground';
 import LoginCard from './components/LoginCard';
 import LoginHeader from './components/LoginHeader';
 import LoginForm from './components/LoginForm';
+import userManagementService from '../../services/userManagementService';
 
 const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Mock user data for authentication
-  const mockUsers = [
-    {
-      email: "daxxxer@gmail.com",
-      password: "123456",
-      role: "admin",
-      name: "مدير النظام"
-    },
-    {
-      email: "ahmed@school.com",
-      password: "123456",
-      role: "user",
-      name: "أحمد محمد",
-      school: "مدرسة الأمل الابتدائية"
-    },
-    {
-      email: "fatima@school.com",
-      password: "123456",
-      role: "user",
-      name: "فاطمة علي",
-      school: "مدرسة النور المتوسطة"
-    }
-  ];
-
   const handleLogin = async (formData) => {
     setIsLoading(true);
     setError('');
 
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Find user in mock data
-      const user = mockUsers.find(u => 
-        u.email.toLowerCase() === formData.email.toLowerCase() && 
-        u.password === formData.password
-      );
-
-      if (!user) {
-        setError('البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.');
-        return;
-      }
-
-      // Store user data in localStorage (in real app, use secure token storage)
-      const userData = {
-        id: user.email,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        school: user.school || null,
-        loginTime: new Date().toISOString(),
-        rememberMe: formData.rememberMe
-      };
-
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('isAuthenticated', 'true');
-
-      // Role-based redirection
+      // محاولة تسجيل الدخول باستخدام خدمة إدارة المستخدمين
+      const user = await userManagementService.loginUser(formData.email, formData.password);
+      
+      // تحديد وجهة التوجيه بناءً على دور المستخدم
       if (user.role === 'admin') {
         navigate('/admin-dashboard', { replace: true });
       } else {
@@ -75,7 +27,7 @@ const LoginPage = () => {
       }
 
     } catch (err) {
-      setError('حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى لاحقاً.');
+      setError(err.message || 'حدث خطأ في تسجيل الدخول. يرجى المحاولة مرة أخرى.');
       console.error('Login error:', err);
     } finally {
       setIsLoading(false);
