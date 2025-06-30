@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 import Input from 'components/ui/Input';
-import { CORE_VALUES_LIST } from '../../lib/operationalPlanConstants';
+import { CORE_VALUES_LIST } from '../../../lib/operationalPlanConstants';
 
 const EthicsSection = ({ ethicsCharter, onChange }) => {
     const [customValues, setCustomValues] = useState(

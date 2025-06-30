@@ -6,7 +6,7 @@ import {
     EVALUATION_MECHANISMS,
     MONITORING_SCHEDULE_EXAMPLES,
     EVALUATION_TOOLS_EXAMPLES,
-} from '../../lib/operationalPlanConstants';
+} from '../../../lib/operationalPlanConstants';
 
 const CheckboxGroup = ({ title, options, selected, onChange }) => {
     const handleCheckChange = useCallback((checked, optionValue) => {
