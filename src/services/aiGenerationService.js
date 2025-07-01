@@ -1,13 +1,19 @@
 // خدمة توليد المحتوى باستخدام الذكاء الاصطناعي
 class AIGenerationService {
   constructor() {
-    this.apiKey = 'AIzaSyAKu1R8Zd1YbUKlRWysmQbeJlhiVXVzlLU';
+    // استخدام مفتاح API من ملف البيئة أو استخدام قيمة افتراضية في حالة عدم وجوده
+    this.apiKey = import.meta.env.VITE_GOOGLE_API_KEY || '';
     this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
   }
 
   // توليد محتوى باستخدام الذكاء الاصطناعي
   async generateContent(prompt, options = {}) {
     try {
+      // التحقق من وجود مفتاح API
+      if (!this.apiKey) {
+        throw new Error('مفتاح Google API غير متوفر. يرجى التحقق من ملف .env');
+      }
+      
       const url = `${this.baseUrl}?key=${this.apiKey}`;
       
       const requestBody = {
