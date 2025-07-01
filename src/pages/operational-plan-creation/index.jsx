@@ -28,7 +28,7 @@ import Button from 'components/ui/Button';
 const OperationalPlanCreation = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [completedSteps, setCompletedSteps] = useState([]);
+  const [completedSteps, setCompletedSteps] = useState([1]); // Mark first step as completed by default
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [planData, setPlanData] = useState({});
   const [lastSaved, setLastSaved] = useState('منذ دقيقتين');
@@ -181,9 +181,12 @@ const OperationalPlanCreation = () => {
   }, []);
 
   const handleStepClick = (stepNumber) => {
-    // Allow navigation to completed steps or the next step
-    if (completedSteps.includes(stepNumber) || stepNumber <= Math.max(...completedSteps, 0) + 1) {
-      setCurrentStep(stepNumber);
+    // Allow navigation to any step without restrictions
+    setCurrentStep(stepNumber);
+    
+    // Mark the step as visited if not already completed
+    if (!completedSteps.includes(stepNumber)) {
+      setCompletedSteps(prev => [...prev, stepNumber]);
     }
   };
 
@@ -193,6 +196,11 @@ const OperationalPlanCreation = () => {
       ...newData
     }));
     setLastSaved('الآن');
+    
+    // Mark current step as completed if not already
+    if (!completedSteps.includes(currentStep)) {
+      setCompletedSteps(prev => [...prev, currentStep]);
+    }
   };
 
   const handleNextStep = (stepData) => {
@@ -228,11 +236,20 @@ const OperationalPlanCreation = () => {
     console.log('Saving plan data:', planData);
     setLastSaved('الآن');
     // Here you would typically save to backend
+    
+    // Mark current step as completed
+    if (!completedSteps.includes(currentStep)) {
+      setCompletedSteps(prev => [...prev, currentStep]);
+    }
+    
+    // Show success message
+    alert('تم حفظ الخطة بنجاح');
   };
 
   const handlePreview = () => {
     console.log('Opening preview modal');
     // Here you would open a preview modal or navigate to preview page
+    alert('سيتم فتح معاينة الخطة قريباً');
   };
 
   const handleExit = () => {

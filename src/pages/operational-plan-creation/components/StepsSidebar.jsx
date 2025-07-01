@@ -142,7 +142,7 @@ const StepsSidebar = ({ steps, currentStep, completedSteps, onStepClick, isColla
               <div>
                 <p className="text-xs font-medium text-accent-800 mb-1">نصيحة</p>
                 <p className="text-xs text-accent-700 leading-relaxed">
-                  يمكنك الانتقال بين الخطوات المكتملة في أي وقت لمراجعة أو تعديل المعلومات.
+                  يمكنك الانتقال بين الخطوات بالضغط على أي خطوة من القائمة الجانبية.
                 </p>
               </div>
             </div>
