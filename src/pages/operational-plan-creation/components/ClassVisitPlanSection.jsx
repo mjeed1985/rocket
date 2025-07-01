@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 import Input from 'components/ui/Input';
+import userManagementService from '../../../services/userManagementService';
 
 const ClassVisitPlanSection = ({ planData, onPlanDataChange }) => {
   const [visitPlan, setVisitPlan] = useState({
@@ -10,6 +11,23 @@ const ClassVisitPlanSection = ({ planData, onPlanDataChange }) => {
     evaluationCriteria: planData?.classVisitPlan?.evaluationCriteria || '',
     visits: planData?.classVisitPlan?.visits || []
   });
+  
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isFemale, setIsFemale] = useState(false);
+
+  // Load current user data
+  useEffect(() => {
+    const user = userManagementService.getCurrentUser();
+    setCurrentUser(user);
+    
+    // Check if user is female based on school category or gender
+    if (user) {
+      const userIsFemale = user.gender === 'female' || 
+                          user.schoolCategory === 'بنات' || 
+                          user.schoolCategory === 'رياض أطفال';
+      setIsFemale(userIsFemale);
+    }
+  }, []);
 
   const handleTextChange = (field, value) => {
     const updatedPlan = { ...visitPlan, [field]: value };
@@ -89,6 +107,11 @@ const ClassVisitPlanSection = ({ planData, onPlanDataChange }) => {
     { value: 'أخرى', label: 'أخرى' }
   ];
 
+  // تحديد النصوص بناءً على جنس المستخدم
+  const teacherLabel = isFemale ? 'المعلمة' : 'المعلم';
+  const principalLabel = isFemale ? 'المديرة' : 'المدير';
+  const teachersLabel = isFemale ? 'المعلمات' : 'المعلمين';
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -96,8 +119,8 @@ const ClassVisitPlanSection = ({ planData, onPlanDataChange }) => {
         <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-xl mb-4">
           <Icon name="Calendar" size={32} className="text-primary-600" />
         </div>
-        <h2 className="text-2xl font-bold text-text-primary mb-2">خطة زيارات المدير للمعلمين</h2>
-        <p className="text-text-secondary">جدول زيارات المدير للفصول الدراسية</p>
+        <h2 className="text-2xl font-bold text-text-primary mb-2">خطة زيارات {principalLabel} {teachersLabel}</h2>
+        <p className="text-text-secondary">جدول زيارات {principalLabel} للفصول الدراسية</p>
         
         {/* إرشادات */}
         <div className="mt-4 p-4 bg-accent-50 rounded-lg border border-accent-200 max-w-md mx-auto">
@@ -106,7 +129,7 @@ const ClassVisitPlanSection = ({ planData, onPlanDataChange }) => {
             <div className="text-right rtl:text-left">
               <h3 className="text-sm font-semibold text-accent-800 mb-1">إرشادات</h3>
               <p className="text-xs text-accent-700 leading-relaxed">
-                حدد أهداف ومنهجية زيارات المدير للمعلمين، وأضف جدول الزيارات المخطط لها
+                حدد أهداف ومنهجية زيارات {principalLabel} {teachersLabel}، وأضف جدول الزيارات المخطط لها
               </p>
             </div>
           </div>
@@ -123,11 +146,11 @@ const ClassVisitPlanSection = ({ planData, onPlanDataChange }) => {
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-text-primary">
-              أهداف زيارات المدير للمعلمين
+              أهداف زيارات {principalLabel} {teachersLabel}
             </label>
             <textarea
               rows={4}
-              placeholder="أدخل أهداف زيارات المدير للمعلمين..."
+              placeholder={`أدخل أهداف زيارات ${principalLabel} ${teachersLabel}...`}
               value={visitPlan.objectives}
               onChange={(e) => handleTextChange('objectives', e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-none"
@@ -186,7 +209,7 @@ const ClassVisitPlanSection = ({ planData, onPlanDataChange }) => {
               <thead className="bg-slate-50 sticky top-0 z-10">
                 <tr>
                   <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200 text-center">م</th>
-                  <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">اسم المعلمة</th>
+                  <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">اسم {teacherLabel}</th>
                   <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">التخصص</th>
                   <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">اليوم والتاريخ</th>
                   <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">الحصة</th>
@@ -204,7 +227,7 @@ const ClassVisitPlanSection = ({ planData, onPlanDataChange }) => {
                     <td className="px-4 py-3">
                       <Input
                         type="text"
-                        placeholder="أدخل اسم المعلمة"
+                        placeholder={`أدخل اسم ${teacherLabel}`}
                         value={visit.teacherName}
                         onChange={(e) => handleVisitChange(visit.id, 'teacherName', e.target.value)}
                         className="w-full"
@@ -331,7 +354,7 @@ const ClassVisitPlanSection = ({ planData, onPlanDataChange }) => {
             </div>
             <div>
               <h4 className="text-sm font-medium text-text-primary">التخطيط المسبق</h4>
-              <p className="text-sm text-text-secondary">حدد أهداف الزيارة وأبلغ المعلم مسبقاً بموعدها</p>
+              <p className="text-sm text-text-secondary">حدد أهداف الزيارة وأبلغ {teacherLabel} مسبقاً بموعدها</p>
             </div>
           </div>
 
@@ -361,7 +384,7 @@ const ClassVisitPlanSection = ({ planData, onPlanDataChange }) => {
             </div>
             <div>
               <h4 className="text-sm font-medium text-text-primary">المتابعة المستمرة</h4>
-              <p className="text-sm text-text-secondary">تابع تنفيذ التوصيات وقدم الدعم اللازم للمعلم</p>
+              <p className="text-sm text-text-secondary">تابع تنفيذ التوصيات وقدم الدعم اللازم {teacherLabel}</p>
             </div>
           </div>
 

@@ -1,8 +1,10 @@
 import React from 'react';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
+import { useNavigate } from 'react-router-dom';
 
-const OperationalPlanProgress = ({ planData }) => {
+const OperationalPlanProgress = ({ planData, isFemale }) => {
+  const navigate = useNavigate();
   const totalSteps = 20;
   const completedSteps = planData.completedSteps;
   const currentStep = planData.currentStep;
@@ -29,6 +31,14 @@ const OperationalPlanProgress = ({ planData }) => {
       'pending': 'bg-slate-200 text-slate-500'
     };
     return colors[status];
+  };
+
+  const handleContinuePlan = () => {
+    navigate('/operational-plan-creation');
+  };
+
+  const handleViewProgress = () => {
+    navigate('/operational-plan-creation');
   };
 
   return (
@@ -120,7 +130,7 @@ const OperationalPlanProgress = ({ planData }) => {
           size="sm"
           iconName="Play"
           iconPosition="right"
-          onClick={() => window.location.href = '/operational-plan-creation'}
+          onClick={handleContinuePlan}
           className="flex-1"
         >
           متابعة الخطة
@@ -131,6 +141,7 @@ const OperationalPlanProgress = ({ planData }) => {
           size="sm"
           iconName="Eye"
           iconPosition="right"
+          onClick={handleViewProgress}
           className="flex-1"
         >
           معاينة التقدم

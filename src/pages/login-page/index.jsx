@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginBackground from './components/LoginBackground';
 import LoginCard from './components/LoginCard';
@@ -10,6 +10,14 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+    if (isAuthenticated) {
+      navigate('/user-dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   const handleLogin = async (formData) => {
     setIsLoading(true);

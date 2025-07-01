@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import UserNavigation from 'components/ui/UserNavigation';
 import WelcomeHeader from './components/WelcomeHeader';
 import ModuleCard from './components/ModuleCard';
@@ -7,14 +7,33 @@ import UpcomingDeadlines from './components/UpcomingDeadlines';
 import SystemNotifications from './components/SystemNotifications';
 import OperationalPlanProgress from './components/OperationalPlanProgress';
 import ActivityFeed from './components/ActivityFeed';
+import userManagementService from '../../services/userManagementService';
 
 const UserDashboard = () => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isFemale, setIsFemale] = useState(false);
+
+  // Load current user data
+  useEffect(() => {
+    const user = userManagementService.getCurrentUser();
+    setCurrentUser(user);
+    
+    // Check if user is female based on school category or gender
+    if (user) {
+      const userIsFemale = user.gender === 'female' || 
+                          user.schoolCategory === 'بنات' || 
+                          user.schoolCategory === 'رياض أطفال';
+      setIsFemale(userIsFemale);
+    }
+  }, []);
+
   // Mock user data
   const userInfo = {
-    principalName: "أحمد محمد العلي",
-    schoolName: "مدرسة الأمل الابتدائية",
-    educationLevel: "المرحلة الابتدائية",
-    lastLogin: "اليوم الساعة 09:30 صباحاً"
+    principalName: currentUser?.name || "أحمد محمد العلي",
+    schoolName: currentUser?.schoolName || "مدرسة الأمل الابتدائية",
+    educationLevel: currentUser?.schoolLevel || "المرحلة الابتدائية",
+    lastLogin: "اليوم الساعة 09:30 صباحاً",
+    gender: currentUser?.gender || "male"
   };
 
   const stats = {
@@ -23,7 +42,12 @@ const UserDashboard = () => {
     systemAlerts: 2
   };
 
-  // Mock modules data
+  // Adjust text based on gender
+  const getGenderedText = (maleText, femaleText) => {
+    return isFemale ? femaleText : maleText;
+  };
+
+  // Mock modules data with gender-specific text
   const modules = [
     {
       type: 'operational-plans',
@@ -31,7 +55,7 @@ const UserDashboard = () => {
       subtitle: 'نظام الـ 20 خطوة',
       icon: 'FileText',
       progress: 65,
-      description: 'إنشاء وإدارة الخطط التشغيلية للمدرسة باستخدام نظام الخطوات المتقدم',
+      description: `إنشاء وإدارة الخطط التشغيلية ${getGenderedText('للمدرسة', 'للمدرسة')} باستخدام نظام الخطوات المتقدم`,
       hasNotification: true,
       notificationCount: 2,
       recentActivity: [
@@ -60,13 +84,13 @@ const UserDashboard = () => {
       subtitle: 'إدارة التواصل الرسمي',
       icon: 'MessageSquare',
       progress: 80,
-      description: 'إرسال واستقبال التبليغات الإدارية والمراسلات الرسمية مع الجهات المختصة',
+      description: `إرسال واستقبال التبليغات الإدارية والمراسلات الرسمية مع الجهات المختصة`,
       hasNotification: true,
       notificationCount: 5,
       recentActivity: [
-        { title: 'تبليغ جديد من إدارة التعليم', status: 'new', date: 'منذ 30 دقيقة' },
+        { title: `تبليغ جديد من إدارة التعليم`, status: 'new', date: 'منذ 30 دقيقة' },
         { title: 'رد على تبليغ الحضور والغياب', status: 'completed', date: 'صباح اليوم' },
-        { title: 'تبليغ اجتماع المديرين', status: 'pending', date: 'أمس' }
+        { title: `تبليغ اجتماع ${getGenderedText('المديرين', 'المديرات')}`, status: 'pending', date: 'أمس' }
       ],
       stats: [
         { value: '12', label: 'تبليغ جديد' },
@@ -86,14 +110,14 @@ const UserDashboard = () => {
     {
       type: 'internal-bulletins',
       title: 'النشرات الداخلية',
-      subtitle: 'التواصل مع الطاقم التعليمي',
+      subtitle: `التواصل مع الطاقم ${getGenderedText('التعليمي', 'التعليمي')}`,
       icon: 'Newspaper',
       progress: 45,
-      description: 'إنشاء ونشر النشرات الداخلية للمعلمين والموظفين في المدرسة',
+      description: `إنشاء ونشر النشرات الداخلية ${getGenderedText('للمعلمين والموظفين', 'للمعلمات والموظفات')} في المدرسة`,
       hasNotification: false,
       notificationCount: 0,
       recentActivity: [
-        { title: 'نشرة اجتماع المعلمين', status: 'completed', date: 'منذ يومين' },
+        { title: `نشرة اجتماع ${getGenderedText('المعلمين', 'المعلمات')}`, status: 'completed', date: 'منذ يومين' },
         { title: 'نشرة الأنشطة الطلابية', status: 'draft', date: '4 أيام' },
         { title: 'نشرة التقويم الدراسي', status: 'completed', date: 'الأسبوع الماضي' }
       ],
@@ -143,7 +167,7 @@ const UserDashboard = () => {
     }
   ];
 
-  // Mock recent documents
+  // Mock recent documents with gender-specific text
   const recentDocuments = [
     {
       title: 'الخطة التشغيلية للفصل الثاني 2024',
@@ -152,7 +176,7 @@ const UserDashboard = () => {
       lastModified: 'منذ ساعتين'
     },
     {
-      title: 'تبليغ اجتماع أولياء الأمور',
+      title: `تبليغ اجتماع أولياء الأمور`,
       type: 'communication',
       status: 'draft',
       lastModified: 'أمس'
@@ -181,7 +205,7 @@ const UserDashboard = () => {
   const upcomingDeadlines = [
     {
       title: 'تسليم التقرير الشهري',
-      description: 'تقرير أداء الطلاب والمعلمين',
+      description: `تقرير أداء ${getGenderedText('الطلاب والمعلمين', 'الطالبات والمعلمات')}`,
       date: '2024-01-15',
       priority: 'high',
       type: 'report'
@@ -256,7 +280,7 @@ const UserDashboard = () => {
     currentStepDescription: 'تحديد الموارد البشرية والمالية والتقنية اللازمة لتنفيذ الخطة'
   };
 
-  // Mock activity feed
+  // Mock activity feed with gender-specific text
   const activities = [
     {
       title: 'تم إنشاء خطة تشغيلية جديدة',
@@ -264,7 +288,7 @@ const UserDashboard = () => {
       type: 'plan',
       timestamp: '2024-01-10T10:30:00Z',
       metadata: {
-        user: 'أحمد محمد العلي',
+        user: currentUser?.name || 'أحمد محمد العلي',
         module: 'الخطط التشغيلية',
         status: 'success',
         statusText: 'مكتمل'
@@ -283,11 +307,11 @@ const UserDashboard = () => {
     },
     {
       title: 'تم نشر نشرة داخلية',
-      description: 'نشرة بخصوص اجتماع المعلمين الأسبوعي',
+      description: `نشرة بخصوص اجتماع ${getGenderedText('المعلمين', 'المعلمات')} الأسبوعي`,
       type: 'bulletin',
       timestamp: '2024-01-09T16:45:00Z',
       metadata: {
-        user: 'أحمد محمد العلي',
+        user: currentUser?.name || 'أحمد محمد العلي',
         module: 'النشرات الداخلية',
         status: 'success',
         statusText: 'تم النشر'
@@ -299,7 +323,7 @@ const UserDashboard = () => {
       type: 'letter',
       timestamp: '2024-01-09T14:20:00Z',
       metadata: {
-        user: 'أحمد محمد العلي',
+        user: currentUser?.name || 'أحمد محمد العلي',
         module: 'الخطابات الخارجية',
         status: 'success',
         statusText: 'تم الإرسال'
@@ -311,7 +335,7 @@ const UserDashboard = () => {
       type: 'user',
       timestamp: '2024-01-08T11:00:00Z',
       metadata: {
-        user: 'أحمد محمد العلي',
+        user: currentUser?.name || 'أحمد محمد العلي',
         status: 'success',
         statusText: 'محدث'
       }
@@ -330,12 +354,12 @@ const UserDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
-      <UserNavigation />
+      <UserNavigation isFemale={isFemale} />
       
       <main className="pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Welcome Header */}
-          <WelcomeHeader userInfo={userInfo} stats={stats} />
+          <WelcomeHeader userInfo={userInfo} stats={stats} isFemale={isFemale} />
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Main Content Area */}
@@ -348,7 +372,7 @@ const UserDashboard = () => {
               </div>
 
               {/* Operational Plan Progress */}
-              <OperationalPlanProgress planData={planData} />
+              <OperationalPlanProgress planData={planData} isFemale={isFemale} />
 
               {/* Activity Feed */}
               <ActivityFeed activities={activities} />

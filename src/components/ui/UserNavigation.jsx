@@ -1,12 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from 'components/ui/Button';
 import Icon from 'components/AppIcon';
+import userManagementService from '../../services/userManagementService';
 
-const UserNavigation = () => {
+const UserNavigation = ({ isFemale }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Load current user data
+  useEffect(() => {
+    const user = userManagementService.getCurrentUser();
+    setCurrentUser(user);
+  }, []);
+
+  // Determine gender based on user data if not provided
+  const userIsFemale = isFemale !== undefined ? isFemale : 
+                      (currentUser?.gender === 'female' || 
+                       currentUser?.schoolCategory === 'بنات' || 
+                       currentUser?.schoolCategory === 'رياض أطفال');
 
   const navigationItems = [
     {
@@ -136,8 +150,8 @@ const UserNavigation = () => {
               {/* User Profile */}
               <div className="flex items-center space-x-3 rtl:space-x-reverse">
                 <div className="hidden sm:block text-right rtl:text-left">
-                  <p className="text-sm font-medium text-text-primary">أحمد محمد</p>
-                  <p className="text-xs text-text-secondary">مدير المدرسة</p>
+                  <p className="text-sm font-medium text-text-primary">{currentUser?.name || "أحمد محمد"}</p>
+                  <p className="text-xs text-text-secondary">{userIsFemale ? 'مديرة المدرسة' : 'مدير المدرسة'}</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -186,6 +200,7 @@ const UserNavigation = () => {
                       <Icon name={item.icon} size={20} />
                       <span>{item.name}</span>
                     </div>
+                    
                     {item.badge && (
                       <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
                         item.badge === 'جديد' ?'bg-accent-100 text-accent-800' :'bg-primary-100 text-primary-800'

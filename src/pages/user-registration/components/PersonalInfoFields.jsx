@@ -1,11 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Input from 'components/ui/Input';
 import Icon from 'components/AppIcon';
+import userManagementService from '../../../services/userManagementService';
 
 const PersonalInfoFields = ({ formData, onChange, errors }) => {
+  const [isFemale, setIsFemale] = useState(false);
+
+  // Check if school category is already selected
+  useEffect(() => {
+    if (formData.schoolCategory) {
+      setIsFemale(formData.schoolCategory === 'بنات' || formData.schoolCategory === 'رياض أطفال');
+    }
+  }, [formData.schoolCategory]);
+
   const handleInputChange = (field, value) => {
     onChange(field, value);
   };
+
+  // تحديد النصوص بناءً على جنس المستخدم
+  const principalLabel = isFemale ? 'المديرة' : 'المدير';
 
   return (
     <div className="space-y-6">
@@ -14,17 +27,17 @@ const PersonalInfoFields = ({ formData, onChange, errors }) => {
           <Icon name="User" size={24} className="text-primary-600" />
         </div>
         <h3 className="text-lg font-semibold text-text-primary">المعلومات الشخصية</h3>
-        <p className="text-sm text-text-secondary mt-1">أدخل معلوماتك الشخصية كمدير للمدرسة</p>
+        <p className="text-sm text-text-secondary mt-1">أدخل معلوماتك الشخصية {isFemale ? 'كمديرة للمدرسة' : 'كمدير للمدرسة'}</p>
       </div>
 
       {/* Principal Name */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-text-primary">
-          اسم المدير <span className="text-error-500">*</span>
+          اسم {principalLabel} <span className="text-error-500">*</span>
         </label>
         <Input
           type="text"
-          placeholder="أدخل اسم مدير المدرسة"
+          placeholder={`أدخل اسم ${principalLabel}`}
           value={formData.principalName || ''}
           onChange={(e) => handleInputChange('principalName', e.target.value)}
           className={errors.principalName ? 'border-error-300 focus:border-error-500 focus:ring-error-200' : ''}

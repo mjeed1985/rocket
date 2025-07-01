@@ -20,6 +20,8 @@ class UserManagementService {
           status: 'active',
           schoolName: null,
           schoolLevel: null,
+          schoolCategory: null,
+          gender: 'male',
           phoneNumber: '+966501234567',
           registrationDate: '2024-01-01',
           lastLogin: new Date().toISOString(),
@@ -37,6 +39,8 @@ class UserManagementService {
           status: 'active',
           schoolName: 'مدرسة الأمل الابتدائية',
           schoolLevel: 'ابتدائية',
+          schoolCategory: 'بنين',
+          gender: 'male',
           phoneNumber: '+966501234568',
           registrationDate: '2024-01-15',
           lastLogin: '2024-01-20T10:30:00Z',
@@ -54,6 +58,8 @@ class UserManagementService {
           status: 'active',
           schoolName: 'متوسطة النور للبنات',
           schoolLevel: 'متوسطة',
+          schoolCategory: 'بنات',
+          gender: 'female',
           phoneNumber: '+966501234569',
           registrationDate: '2024-01-10',
           lastLogin: '2024-01-19T14:15:00Z',
@@ -71,6 +77,8 @@ class UserManagementService {
           status: 'inactive',
           schoolName: 'ثانوية الفيصل',
           schoolLevel: 'ثانوية',
+          schoolCategory: 'بنين',
+          gender: 'male',
           phoneNumber: '+966501234570',
           registrationDate: '2024-01-05',
           lastLogin: '2024-01-18T09:45:00Z',
@@ -118,6 +126,9 @@ class UserManagementService {
       throw new Error('البريد الإلكتروني مستخدم بالفعل');
     }
 
+    // تحديد الجنس بناءً على فئة المدرسة إذا لم يتم تحديده
+    const gender = userData.gender || (userData.schoolCategory === 'بنات' || userData.schoolCategory === 'رياض أطفال' ? 'female' : 'male');
+
     const newUser = {
       id: this.generateUserId(),
       name: userData.name,
@@ -126,6 +137,8 @@ class UserManagementService {
       status: userData.status || 'active',
       schoolName: userData.schoolName || null,
       schoolLevel: userData.schoolLevel || null,
+      schoolCategory: userData.schoolCategory || null,
+      gender: gender,
       phoneNumber: userData.phoneNumber || null,
       registrationDate: new Date().toISOString().split('T')[0],
       lastLogin: null,
@@ -162,6 +175,11 @@ class UserManagementService {
       if (existingUser && existingUser.id !== userId) {
         throw new Error('البريد الإلكتروني مستخدم بالفعل');
       }
+    }
+
+    // تحديث الجنس إذا تم تغيير فئة المدرسة
+    if (updateData.schoolCategory && updateData.schoolCategory !== users[userIndex].schoolCategory) {
+      updateData.gender = updateData.schoolCategory === 'بنات' || updateData.schoolCategory === 'رياض أطفال' ? 'female' : 'male';
     }
 
     const oldUser = { ...users[userIndex] };
@@ -257,6 +275,14 @@ class UserManagementService {
       users = users.filter(user => user.schoolLevel === filters.schoolLevel);
     }
 
+    if (filters.schoolCategory && filters.schoolCategory !== 'all') {
+      users = users.filter(user => user.schoolCategory === filters.schoolCategory);
+    }
+
+    if (filters.gender && filters.gender !== 'all') {
+      users = users.filter(user => user.gender === filters.gender);
+    }
+
     if (filters.isVerified !== undefined) {
       users = users.filter(user => user.isVerified === filters.isVerified);
     }
@@ -276,6 +302,15 @@ class UserManagementService {
       regularUsers: users.filter(u => u.role === 'user').length,
       verified: users.filter(u => u.isVerified).length,
       unverified: users.filter(u => !u.isVerified).length,
+      byGender: {
+        male: users.filter(u => u.gender === 'male').length,
+        female: users.filter(u => u.gender === 'female').length
+      },
+      bySchoolCategory: {
+        boys: users.filter(u => u.schoolCategory === 'بنين').length,
+        girls: users.filter(u => u.schoolCategory === 'بنات').length,
+        kindergarten: users.filter(u => u.schoolCategory === 'رياض أطفال').length
+      },
       bySchoolLevel: {
         elementary: users.filter(u => u.schoolLevel === 'ابتدائية').length,
         middle: users.filter(u => u.schoolLevel === 'متوسطة').length,
@@ -397,7 +432,7 @@ class UserManagementService {
     const users = this.getAllUsers();
     
     if (format === 'csv') {
-      const headers = ['الاسم', 'البريد الإلكتروني', 'الدور', 'الحالة', 'المدرسة', 'المرحلة', 'تاريخ التسجيل', 'آخر دخول'];
+      const headers = ['الاسم', 'البريد الإلكتروني', 'الدور', 'الحالة', 'المدرسة', 'المرحلة', 'فئة المدرسة', 'الجنس', 'تاريخ التسجيل', 'آخر دخول'];
       const csvContent = [
         headers.join(','),
         ...users.map(user => [
@@ -407,6 +442,8 @@ class UserManagementService {
           user.status === 'active' ? 'نشط' : 'غير نشط',
           user.schoolName || '',
           user.schoolLevel || '',
+          user.schoolCategory || '',
+          user.gender === 'male' ? 'ذكر' : 'أنثى',
           user.registrationDate,
           user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('ar-SA') : 'لم يسجل دخول'
         ].join(','))

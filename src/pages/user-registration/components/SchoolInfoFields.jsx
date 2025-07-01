@@ -18,9 +18,19 @@ const SchoolInfoFields = ({ formData, onChange, errors }) => {
     { value: 'عالمية', label: 'عالمية' }
   ];
 
+  const schoolCategories = [
+    { value: '', label: 'اختر فئة المدرسة' },
+    { value: 'بنين', label: 'بنين' },
+    { value: 'بنات', label: 'بنات' },
+    { value: 'رياض أطفال', label: 'رياض أطفال' }
+  ];
+
   const handleInputChange = (field, value) => {
     onChange(field, value);
   };
+
+  // تحديد ما إذا كان المستخدم أنثى بناءً على فئة المدرسة
+  const isFemale = formData.schoolCategory === 'بنات' || formData.schoolCategory === 'رياض أطفال';
 
   return (
     <div className="space-y-6">
@@ -53,8 +63,40 @@ const SchoolInfoFields = ({ formData, onChange, errors }) => {
         )}
       </div>
 
-      {/* School Level and Type - Two Column Layout on Desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* School Category, Level and Type - Three Column Layout on Desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* School Category */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-text-primary">
+            فئة المدرسة <span className="text-error-500">*</span>
+          </label>
+          <div className="relative">
+            <select
+              value={formData.schoolCategory || ''}
+              onChange={(e) => handleInputChange('schoolCategory', e.target.value)}
+              className={`w-full px-3 py-2 border rounded-md bg-white text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 ${
+                errors.schoolCategory ? 'border-error-300' : 'border-slate-300'
+              }`}
+              required
+            >
+              {schoolCategories.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+            <div className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <Icon name="ChevronDown" size={16} className="text-text-muted" />
+            </div>
+          </div>
+          {errors.schoolCategory && (
+            <div className="flex items-center space-x-2 rtl:space-x-reverse text-sm text-error-600">
+              <Icon name="AlertCircle" size={16} />
+              <span>{errors.schoolCategory}</span>
+            </div>
+          )}
+        </div>
+
         {/* School Level */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-text-primary">
@@ -143,7 +185,7 @@ const SchoolInfoFields = ({ formData, onChange, errors }) => {
       {/* Student Count */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-text-primary">
-          عدد الطلاب (تقريبي)
+          عدد {isFemale ? 'الطالبات' : 'الطلاب'} (تقريبي)
         </label>
         <Input
           type="number"
@@ -160,6 +202,25 @@ const SchoolInfoFields = ({ formData, onChange, errors }) => {
           </div>
         )}
       </div>
+
+      {/* School Category Info */}
+      {formData.schoolCategory && (
+        <div className="bg-primary-50 rounded-lg p-4 border border-primary-200">
+          <div className="flex items-center space-x-2 rtl:space-x-reverse mb-2">
+            <Icon name="Info" size={16} className="text-primary-600" />
+            <span className="text-sm font-medium text-primary-800">
+              معلومات فئة المدرسة
+            </span>
+          </div>
+          <p className="text-sm text-primary-700">
+            {formData.schoolCategory === 'بنين' 
+              ? 'سيتم تخصيص الواجهة لمدارس البنين واستخدام صيغة المذكر في جميع أجزاء النظام.' 
+              : formData.schoolCategory === 'بنات'
+              ? 'سيتم تخصيص الواجهة لمدارس البنات واستخدام صيغة المؤنث في جميع أجزاء النظام.'
+              : 'سيتم تخصيص الواجهة لمدارس رياض الأطفال واستخدام صيغة المؤنث في جميع أجزاء النظام.'}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

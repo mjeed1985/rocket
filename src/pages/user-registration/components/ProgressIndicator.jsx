@@ -6,7 +6,7 @@ const ProgressIndicator = ({ currentStep, totalSteps, completedSteps }) => {
 
   const steps = [
     { id: 1, name: 'كود التفعيل', icon: 'Key' },
-    { id: 2, name: 'المعلومات الأساسية', icon: 'User' },
+    { id: 2, name: 'المعلومات الشخصية', icon: 'User' },
     { id: 3, name: 'معلومات المدرسة', icon: 'School' },
     { id: 4, name: 'كلمة المرور', icon: 'Lock' }
   ];

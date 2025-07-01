@@ -21,6 +21,7 @@ const RegistrationForm = ({ onSuccess }) => {
     schoolName: '',
     schoolLevel: '',
     schoolType: '',
+    schoolCategory: '',
     schoolAddress: '',
     studentCount: '',
     password: '',
@@ -86,6 +87,9 @@ const RegistrationForm = ({ onSuccess }) => {
         if (!formData.schoolType) {
           newErrors.schoolType = 'نوع المدرسة مطلوب';
         }
+        if (!formData.schoolCategory) {
+          newErrors.schoolCategory = 'فئة المدرسة مطلوبة';
+        }
         break;
 
       case 4:
@@ -126,6 +130,9 @@ const RegistrationForm = ({ onSuccess }) => {
     setIsLoading(true);
     
     try {
+      // تحديد جنس المستخدم بناءً على فئة المدرسة
+      const isFemale = formData.schoolCategory === 'بنات' || formData.schoolCategory === 'رياض أطفال';
+      
       // إنشاء بيانات المستخدم الجديد
       const userData = {
         name: formData.principalName,
@@ -133,8 +140,10 @@ const RegistrationForm = ({ onSuccess }) => {
         role: 'user',
         schoolName: formData.schoolName,
         schoolLevel: formData.schoolLevel,
+        schoolCategory: formData.schoolCategory,
         phoneNumber: formData.phoneNumber,
         isVerified: true,
+        gender: isFemale ? 'female' : 'male',
         notes: `تم التسجيل باستخدام كود التفعيل: ${formData.activationCode}`
       };
 
@@ -152,6 +161,10 @@ const RegistrationForm = ({ onSuccess }) => {
         
         activationCodeService.useCode(formData.activationCode, userInfo);
       }
+      
+      // تسجيل دخول المستخدم تلقائياً
+      localStorage.setItem('user', JSON.stringify(newUser));
+      localStorage.setItem('isAuthenticated', 'true');
       
       console.log('Registration successful:', newUser);
       onSuccess();
@@ -209,7 +222,7 @@ const RegistrationForm = ({ onSuccess }) => {
       case 2:
         return formData.principalName && formData.email;
       case 3:
-        return formData.schoolName && formData.schoolLevel && formData.schoolType;
+        return formData.schoolName && formData.schoolLevel && formData.schoolType && formData.schoolCategory;
       case 4:
         return formData.password && formData.confirmPassword && formData.password === formData.confirmPassword;
       default:

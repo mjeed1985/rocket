@@ -1,13 +1,16 @@
 import React from 'react';
 import Icon from 'components/AppIcon';
 
-const WelcomeHeader = ({ userInfo, stats }) => {
+const WelcomeHeader = ({ userInfo, stats, isFemale }) => {
   const getCurrentGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'صباح الخير';
     if (hour < 18) return 'مساء الخير';
     return 'مساء الخير';
   };
+
+  // تحديد الضمائر بناءً على جنس المستخدم
+  const principalTitle = isFemale ? 'مديرة' : 'مدير';
 
   return (
     <div className="bg-gradient-to-r from-primary-500 to-primary-700 rounded-xl p-6 text-white shadow-card-2 mb-6">
@@ -17,7 +20,7 @@ const WelcomeHeader = ({ userInfo, stats }) => {
             {getCurrentGreeting()}، {userInfo.principalName}
           </h1>
           <p className="text-primary-100 text-lg">
-            مدير {userInfo.schoolName} - {userInfo.educationLevel}
+            {principalTitle} {userInfo.schoolName} - {userInfo.educationLevel}
           </p>
           <p className="text-primary-200 text-sm mt-1">
             آخر تسجيل دخول: {userInfo.lastLogin}

@@ -1,12 +1,33 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from 'components/ui/Button';
 import Icon from 'components/AppIcon';
+import userManagementService from '../../../services/userManagementService';
 
 const SuccessMessage = () => {
   const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isFemale, setIsFemale] = useState(false);
 
   useEffect(() => {
+    // Get the most recently created user
+    const users = userManagementService.getAllUsers();
+    if (users.length > 0) {
+      const latestUser = users.sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      )[0];
+      
+      setCurrentUser(latestUser);
+      
+      // Check if user is female based on school category or gender
+      if (latestUser) {
+        const userIsFemale = latestUser.gender === 'female' || 
+                            latestUser.schoolCategory === 'بنات' || 
+                            latestUser.schoolCategory === 'رياض أطفال';
+        setIsFemale(userIsFemale);
+      }
+    }
+
     // Auto redirect after 5 seconds
     const timer = setTimeout(() => {
       navigate('/user-dashboard');
@@ -23,6 +44,11 @@ const SuccessMessage = () => {
     navigate('/login-page');
   };
 
+  // تحديد النصوص بناءً على جنس المستخدم
+  const welcomeText = isFemale ? 'مرحباً بكِ' : 'مرحباً بك';
+  const accountCreatedText = isFemale ? 'تم إنشاء حسابكِ بنجاح!' : 'تم إنشاء حسابك بنجاح!';
+  const accountTypeText = isFemale ? 'مديرة مدرسة' : 'مدير مدرسة';
+
   return (
     <div className="bg-white rounded-xl shadow-card-2 p-8 text-center max-w-md mx-auto">
       {/* Success Icon */}
@@ -32,22 +58,22 @@ const SuccessMessage = () => {
 
       {/* Success Message */}
       <h2 className="text-2xl font-bold text-text-primary mb-4 font-heading">
-        تم إنشاء الحساب بنجاح!
+        {accountCreatedText}
       </h2>
       
       <p className="text-text-secondary mb-6 leading-relaxed">
-        مرحباً بك في منصة SchoolPlan Pro. تم إنشاء حسابك بنجاح ويمكنك الآن البدء في استخدام جميع الميزات المتاحة.
+        {welcomeText} في منصة SchoolPlan Pro. تم إنشاء حسابك بنجاح ويمكنك الآن البدء في استخدام جميع الميزات المتاحة.
       </p>
 
       {/* Account Details */}
       <div className="bg-primary-50 rounded-lg p-4 mb-6 text-right rtl:text-left">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-text-secondary">البريد الإلكتروني:</span>
-          <span className="text-sm font-medium text-text-primary">user@example.com</span>
+          <span className="text-sm font-medium text-text-primary">{currentUser?.email || 'user@example.com'}</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-sm text-text-secondary">نوع الحساب:</span>
-          <span className="text-sm font-medium text-primary-700">مدير مدرسة</span>
+          <span className="text-sm font-medium text-primary-700">{accountTypeText}</span>
         </div>
       </div>
 
