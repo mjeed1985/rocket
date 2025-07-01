@@ -1,68 +1,81 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Eye, Trash2, Users, Share2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import Button from 'components/ui/Button';
+import Icon from 'components/AppIcon';
 
 const SavedLettersList = ({ savedLetters, pageTitle, onLoadLetter, onDeleteLetter, onViewAcknowledgements, onShareLetter, type }) => {
   if (!savedLetters || savedLetters.length === 0) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-        <Card className="max-w-3xl mx-auto mt-8 bg-white/80 backdrop-blur-md border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="arabic-text text-center">النماذج المحفوظة من {pageTitle}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-center text-gray-500 arabic-text">لا توجد نماذج محفوظة حالياً.</p>
-          </CardContent>
-        </Card>
-      </motion.div>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-card-1 p-6 max-w-3xl mx-auto mt-8">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-text-primary mb-2">النماذج المحفوظة من {pageTitle}</h3>
+          <div className="flex flex-col items-center justify-center py-8">
+            <Icon name="FileText" size={48} className="text-text-muted mb-4" />
+            <p className="text-text-secondary">لا توجد نماذج محفوظة حالياً.</p>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
-      <Card className="max-w-3xl mx-auto mt-8 bg-white/80 backdrop-blur-md border-0 shadow-lg">
-        <CardHeader><CardTitle className="arabic-text text-center">النماذج المحفوظة من {pageTitle}</CardTitle></CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            {savedLetters.map(l => (
-              <li key={l.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-md shadow-sm">
-                <span className="arabic-text font-medium">{l.name}</span>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => onLoadLetter(l)} className="flex items-center gap-1">
-                    <Eye className="w-4 h-4"/> عرض
+    <div className="bg-white rounded-xl border border-slate-200 shadow-card-1 p-6 max-w-3xl mx-auto mt-8">
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-text-primary text-center">النماذج المحفوظة من {pageTitle}</h3>
+      </div>
+      
+      <ul className="space-y-3">
+        {savedLetters.map(letter => (
+          <li key={letter.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-md shadow-sm">
+            <span className="font-medium text-text-primary">{letter.name}</span>
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => onLoadLetter(letter)} 
+                iconName="Eye"
+                className="flex items-center space-x-1 rtl:space-x-reverse"
+              >
+                <span>عرض</span>
+              </Button>
+              
+              {(type === 'notifications' || type === 'bulletins') && letter.db_id && (
+                <>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => onShareLetter(letter)} 
+                    iconName="Share2"
+                    className="flex items-center space-x-1 rtl:space-x-reverse text-success-600 hover:text-success-700 hover:bg-success-50"
+                  >
+                    <span>مشاركة</span>
                   </Button>
-                   {(type === 'notification' || type === 'bulletin') && l.db_id && (
-                    <>
-                      <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          onClick={() => onShareLetter(l)} 
-                          className="flex items-center gap-1 text-green-600 hover:text-green-700 hover:bg-green-50"
-                      >
-                          <Share2 className="w-4 h-4"/> مشاركة
-                      </Button>
-                      <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          onClick={() => onViewAcknowledgements(l.db_id)} 
-                          className="flex items-center gap-1 text-sky-600 hover:text-sky-700 hover:bg-sky-50"
-                      >
-                          <Users className="w-4 h-4"/> المطلعون
-                      </Button>
-                    </>
-                   )}
-                  <Button size="sm" variant="destructive" onClick={() => onDeleteLetter(l.id)} className="flex items-center gap-1">
-                    <Trash2 className="w-4 h-4"/> حذف
+                  
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => onViewAcknowledgements(letter.db_id)} 
+                    iconName="Users"
+                    className="flex items-center space-x-1 rtl:space-x-reverse text-primary-600 hover:text-primary-700 hover:bg-primary-50"
+                  >
+                    <span>المطلعون</span>
                   </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
-    </motion.div>
+                </>
+              )}
+              
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                onClick={() => onDeleteLetter(letter.id)} 
+                iconName="Trash2"
+                className="flex items-center space-x-1 rtl:space-x-reverse text-error-600 hover:text-error-700 hover:bg-error-50"
+              >
+                <span>حذف</span>
+              </Button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 

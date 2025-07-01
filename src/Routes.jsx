@@ -9,6 +9,9 @@ import UserRegistration from "pages/user-registration";
 import OperationalPlanCreation from "pages/operational-plan-creation";
 import UserDashboard from "pages/user-dashboard";
 import AdminDashboard from "pages/admin-dashboard";
+import AdministrativeNotifications from "pages/administrative-notifications";
+import CreateLetter from "pages/administrative-notifications/create";
+import SavedLetters from "pages/administrative-notifications/saved";
 import NotFound from "pages/NotFound";
 
 const Routes = () => {
@@ -25,6 +28,12 @@ const Routes = () => {
         <Route path="/operational-plan-creation" element={<OperationalPlanCreation />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        
+        {/* Administrative Notifications Routes */}
+        <Route path="/administrative-notifications" element={<AdministrativeNotifications />} />
+        <Route path="/administrative-notifications/:type/create" element={<CreateLetter />} />
+        <Route path="/administrative-notifications/:type/saved" element={<SavedLetters />} />
+        
         <Route path="*" element={<NotFound />} />
       </RouterRoutes>
       </ErrorBoundary>
