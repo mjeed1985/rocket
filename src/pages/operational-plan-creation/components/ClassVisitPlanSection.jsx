@@ -22,11 +22,11 @@ const ClassVisitPlanSection = ({ planData, onPlanDataChange }) => {
       id: Date.now(),
       teacherName: '',
       subject: '',
-      grade: '',
       date: '',
       period: '',
-      objectives: '',
-      notes: ''
+      classroom: '',
+      isCompleted: false,
+      alternateDate: ''
     };
     
     const updatedVisits = [...visitPlan.visits, newVisit];
@@ -150,117 +150,134 @@ const ClassVisitPlanSection = ({ planData, onPlanDataChange }) => {
         </div>
 
         {visitPlan.visits.length > 0 ? (
-          <div className="space-y-4">
-            {visitPlan.visits.map((visit) => (
-              <div key={visit.id} className="p-4 border border-slate-200 rounded-lg bg-slate-50">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-md font-medium text-text-primary">
-                    {visit.teacherName ? `زيارة: ${visit.teacherName}` : 'زيارة جديدة'}
-                  </h4>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveVisit(visit.id)}
-                    iconName="Trash2"
-                    className="text-error-600 hover:bg-error-50"
-                  >
-                    حذف
-                  </Button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-text-primary">
-                      اسم المعلم <span className="text-error-500">*</span>
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="أدخل اسم المعلم"
-                      value={visit.teacherName}
-                      onChange={(e) => handleVisitChange(visit.id, 'teacherName', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-text-primary">
-                      المادة الدراسية
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="أدخل المادة الدراسية"
-                      value={visit.subject}
-                      onChange={(e) => handleVisitChange(visit.id, 'subject', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-text-primary">
-                      الصف/المرحلة
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="مثال: الصف الثالث الابتدائي"
-                      value={visit.grade}
-                      onChange={(e) => handleVisitChange(visit.id, 'grade', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-text-primary">
-                      تاريخ الزيارة
-                    </label>
-                    <Input
-                      type="date"
-                      value={visit.date}
-                      onChange={(e) => handleVisitChange(visit.id, 'date', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-text-primary">
-                      الحصة/الفترة
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="مثال: الحصة الثالثة"
-                      value={visit.period}
-                      onChange={(e) => handleVisitChange(visit.id, 'period', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-text-primary">
-                      أهداف الزيارة
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="أدخل أهداف الزيارة"
-                      value={visit.objectives}
-                      onChange={(e) => handleVisitChange(visit.id, 'objectives', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="block text-sm font-medium text-text-primary">
-                      ملاحظات
-                    </label>
-                    <textarea
-                      rows={2}
-                      placeholder="أدخل أي ملاحظات إضافية..."
-                      value={visit.notes}
-                      onChange={(e) => handleVisitChange(visit.id, 'notes', e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-none"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead className="bg-slate-50 sticky top-0">
+                <tr className="text-right rtl:text-right">
+                  <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">م</th>
+                  <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">اسم المعلمة</th>
+                  <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">التخصص</th>
+                  <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">اليوم والتاريخ</th>
+                  <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">الحصة</th>
+                  <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">الفصل</th>
+                  <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">نُفذ</th>
+                  <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">لم يُنفذ</th>
+                  <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">الموعد البديل</th>
+                  <th className="px-4 py-3 text-sm font-medium text-text-secondary border-b border-slate-200">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visitPlan.visits.map((visit, index) => (
+                  <tr key={visit.id} className="border-b border-slate-200 hover:bg-slate-50">
+                    <td className="px-4 py-3 text-center">{index + 1}</td>
+                    <td className="px-4 py-3">
+                      <Input
+                        type="text"
+                        placeholder="أدخل اسم المعلمة"
+                        value={visit.teacherName}
+                        onChange={(e) => handleVisitChange(visit.id, 'teacherName', e.target.value)}
+                        className="w-full"
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Input
+                        type="text"
+                        placeholder="التخصص"
+                        value={visit.subject}
+                        onChange={(e) => handleVisitChange(visit.id, 'subject', e.target.value)}
+                        className="w-full"
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Input
+                        type="date"
+                        value={visit.date}
+                        onChange={(e) => handleVisitChange(visit.id, 'date', e.target.value)}
+                        className="w-full"
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <select
+                        value={visit.period}
+                        onChange={(e) => handleVisitChange(visit.id, 'period', e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 bg-white"
+                      >
+                        <option value="">اختر الحصة</option>
+                        <option value="الأولى">الأولى</option>
+                        <option value="الثانية">الثانية</option>
+                        <option value="الثالثة">الثالثة</option>
+                        <option value="الرابعة">الرابعة</option>
+                        <option value="الخامسة">الخامسة</option>
+                        <option value="السادسة">السادسة</option>
+                        <option value="السابعة">السابعة</option>
+                      </select>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Input
+                        type="text"
+                        placeholder="الفصل"
+                        value={visit.classroom}
+                        onChange={(e) => handleVisitChange(visit.id, 'classroom', e.target.value)}
+                        className="w-full"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <input
+                        type="radio"
+                        checked={visit.isCompleted === true}
+                        onChange={() => handleVisitChange(visit.id, 'isCompleted', true)}
+                        className="w-4 h-4 text-primary-600 border-slate-300 focus:ring-primary-500"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <input
+                        type="radio"
+                        checked={visit.isCompleted === false}
+                        onChange={() => handleVisitChange(visit.id, 'isCompleted', false)}
+                        className="w-4 h-4 text-primary-600 border-slate-300 focus:ring-primary-500"
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Input
+                        type="date"
+                        value={visit.alternateDate || ''}
+                        onChange={(e) => handleVisitChange(visit.id, 'alternateDate', e.target.value)}
+                        className="w-full"
+                        disabled={visit.isCompleted === true}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveVisit(visit.id)}
+                        iconName="Trash2"
+                        className="text-error-600 hover:bg-error-50"
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : (
           <div className="text-center py-8 text-text-muted">
             <Icon name="Calendar" size={48} className="mx-auto mb-4 opacity-50" />
             <p>لم يتم إضافة زيارات بعد</p>
             <p className="text-sm">انقر على "إضافة زيارة" للبدء</p>
+          </div>
+        )}
+
+        {visitPlan.visits.length > 0 && (
+          <div className="flex justify-center mt-4">
+            <Button
+              variant="secondary"
+              onClick={handleAddVisit}
+              iconName="Plus"
+              iconPosition="left"
+            >
+              إضافة زيارة جديدة
+            </Button>
           </div>
         )}
       </div>
