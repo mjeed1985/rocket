@@ -17,7 +17,7 @@ const SchoolAspectsPrioritySection = ({ planData, onPlanDataChange }) => {
 
   // حالة المجالات المرتبة
   const [rankedDomains, setRankedDomains] = useState(
-    planData?.schoolAspectsPriority?.rankedDomains || initialDomains
+    planData?.schoolAspectsPriority?.rankedDomains || []
   );
   
   // حالة المجالات المتاحة للسحب
@@ -31,15 +31,16 @@ const SchoolAspectsPrioritySection = ({ planData, onPlanDataChange }) => {
   
   // تهيئة المجالات المتاحة عند بدء التحميل
   useEffect(() => {
-    if (!planData?.schoolAspectsPriority?.rankedDomains) {
-      updatePlanData(rankedDomains);
+    // إذا كانت قائمة المجالات المرتبة فارغة، نضيف جميع المجالات إلى القائمة المتاحة
+    if (rankedDomains.length === 0) {
+      setAvailableDomains(initialDomains);
+    } else {
+      // تحديث المجالات المتاحة
+      const availableDomainsList = initialDomains.filter(
+        domain => !rankedDomains.some(rankedDomain => rankedDomain.id === domain.id)
+      );
+      setAvailableDomains(availableDomainsList);
     }
-    
-    // تحديث المجالات المتاحة
-    const availableDomainsList = initialDomains.filter(
-      domain => !rankedDomains.some(rankedDomain => rankedDomain.id === domain.id)
-    );
-    setAvailableDomains(availableDomainsList);
   }, []);
 
   // تحديث بيانات الخطة
@@ -142,51 +143,58 @@ const SchoolAspectsPrioritySection = ({ planData, onPlanDataChange }) => {
     updatePlanData(newRankedDomains);
   };
 
+  // بدء عملية السحب
+  const handleDragStart = (e, domain) => {
+    e.dataTransfer.setData('domain', JSON.stringify(domain));
+    setDraggedDomain(domain);
+  };
+
+  // السماح بالإفلات
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  // إفلات المجال في المنطقة المستهدفة
+  const handleDrop = (e) => {
+    e.preventDefault();
+    try {
+      const domain = JSON.parse(e.dataTransfer.getData('domain'));
+      
+      // إذا كان المجال موجوداً بالفعل في القائمة المرتبة، نتجاهل العملية
+      if (rankedDomains.some(d => d.id === domain.id)) {
+        return;
+      }
+      
+      // إضافة المجال إلى القائمة المرتبة
+      const newRankedDomains = [...rankedDomains, domain];
+      setRankedDomains(newRankedDomains);
+      
+      // إزالة المجال من القائمة المتاحة
+      const newAvailableDomains = availableDomains.filter(d => d.id !== domain.id);
+      setAvailableDomains(newAvailableDomains);
+      
+      // تحديث بيانات الخطة
+      updatePlanData(newRankedDomains);
+    } catch (error) {
+      console.error('Error parsing dragged domain:', error);
+    }
+  };
+
   // توليد تلقائي لتحليل المجالات
   const generateDomainAnalysis = () => {
     const analysis = {
-      'القيادة والإدارة المدرسية': 'تتميز القيادة المدرسية بالكفاءة في التخطيط والتنظيم، مع الحاجة إلى تطوير مهارات التفويض وتمكين المعلمين.',
-      'التعليم والتعلم': 'مستوى جيد من استراتيجيات التدريس الحديثة، مع ضرورة تعزيز التعلم النشط والتقييم المستمر.',
-      'البيئة المدرسية': 'بيئة آمنة ومحفزة للتعلم، تحتاج إلى تحسينات في المرافق والتجهيزات التقنية.',
-      'الشراكة الأسرية والمجتمعية': 'تواصل جيد مع أولياء الأمور، مع ضعف في الشراكات مع مؤسسات المجتمع المحلي.',
-      'التحصيل الدراسي': 'مستويات متوسطة في التحصيل الأكاديمي، مع تفاوت بين المواد الدراسية المختلفة.',
-      'الإتجاهات والسلوك': 'سلوكيات إيجابية بشكل عام، مع الحاجة إلى تعزيز القيم وتنمية المهارات الاجتماعية.',
-      'الصحة واللياقة العامة': 'اهتمام متوسط بالصحة البدنية، مع ضعف في برامج التوعية الصحية والنفسية.'
+      'القيادة والإدارة المدرسية': 'فعالية القيادة والإدارة المدرسية',
+      'التعليم والتعلم': 'جودة عمليات التعليم والتعلم',
+      'البيئة المدرسية': 'جودة البيئة المدرسية وملاءمتها للتعلم',
+      'الشراكة الأسرية والمجتمعية': 'التواصل والتعاون مع المجتمع المحلي',
+      'التحصيل الدراسي': 'مستوى تحصيل الطلاب الأكاديمي',
+      'الإتجاهات والسلوك': 'سلوكيات الطلاب واتجاهاتهم الإيجابية',
+      'الصحة واللياقة العامة': 'الصحة البدنية والنفسية للطلاب'
     };
 
     setShowDetails(true);
     
     return analysis;
-  };
-
-  // بدء عملية السحب
-  const handleDragStart = (domain) => {
-    setDraggedDomain(domain);
-  };
-
-  // إفلات المجال في المنطقة المستهدفة
-  const handleDrop = () => {
-    if (!draggedDomain) return;
-    
-    // إذا كان المجال موجوداً بالفعل في القائمة المرتبة، نتجاهل العملية
-    if (rankedDomains.some(domain => domain.id === draggedDomain.id)) {
-      setDraggedDomain(null);
-      return;
-    }
-    
-    // إضافة المجال إلى القائمة المرتبة
-    const newRankedDomains = [...rankedDomains, draggedDomain];
-    setRankedDomains(newRankedDomains);
-    
-    // إزالة المجال من القائمة المتاحة
-    const newAvailableDomains = availableDomains.filter(domain => domain.id !== draggedDomain.id);
-    setAvailableDomains(newAvailableDomains);
-    
-    // تحديث بيانات الخطة
-    updatePlanData(newRankedDomains);
-    
-    // إعادة تعيين المجال المسحوب
-    setDraggedDomain(null);
   };
 
   return (
@@ -213,89 +221,124 @@ const SchoolAspectsPrioritySection = ({ planData, onPlanDataChange }) => {
         </div>
       </div>
 
-      {/* قسم ترتيب المجالات */}
-      <div className="bg-black bg-opacity-90 rounded-xl border border-slate-700 p-6 space-y-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <Icon name="ListOrdered" size={20} className="text-blue-400" />
-            <h3 className="text-lg font-semibold text-white">المجالات الأولى بالترتيب تنازلي</h3>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* قسم المجالات المتاحة */}
+        <div className="md:col-span-4">
+          <div className="bg-white rounded-xl border border-slate-200 p-4 h-full">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-md font-semibold text-text-primary">المجالات المتاحة</h3>
+              <Icon name="DragVertical" size={18} className="text-text-muted" />
+            </div>
+            
+            <div className="space-y-3">
+              {availableDomains.map((domain) => (
+                <motion.div
+                  key={domain.id}
+                  className="p-3 rounded-lg border border-slate-200 bg-slate-50 cursor-move shadow-sm hover:shadow-md transition-all duration-200"
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, domain)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <h4 className="text-sm font-medium text-text-primary">{domain.name}</h4>
+                  <p className="text-xs text-text-secondary mt-1">{domain.description}</p>
+                </motion.div>
+              ))}
+              
+              {availableDomains.length === 0 && (
+                <div className="text-center py-6 text-text-muted">
+                  <Icon name="Check" size={32} className="mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">تم استخدام جميع المجالات</p>
+                </div>
+              )}
+            </div>
           </div>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleAddDomain}
-            iconName="Plus"
-            iconPosition="left"
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            إضافة جانب جديد
-          </Button>
         </div>
 
-        {/* منطقة السحب والإفلات */}
-        <motion.div 
-          className="space-y-3 min-h-[300px] p-4 rounded-lg border-2 border-dashed border-slate-600 bg-black bg-opacity-50"
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={handleDrop}
-          animate={{ borderColor: draggedDomain ? 'rgba(59, 130, 246, 0.5)' : 'rgba(71, 85, 105, 0.5)' }}
-          transition={{ duration: 0.3 }}
-        >
-          {rankedDomains.map((domain, index) => (
-            <motion.div
-              key={domain.id}
-              className={`p-4 rounded-lg border-2 shadow-md transition-all duration-300 ${getBackgroundColor(index)}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
-              layout
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-full ${getNumberColor(index)} font-bold text-lg`}>
-                    {index + 1}
-                  </div>
-                  <div>
-                    <h4 className={`text-lg font-bold ${getTextColor(index)}`}>{domain.name}</h4>
-                    <p className="text-sm text-slate-600">{domain.description}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleMoveUp(index)}
-                    iconName="ChevronUp"
-                    className="text-slate-600 hover:bg-slate-200"
-                    disabled={index === 0}
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleMoveDown(index)}
-                    iconName="ChevronDown"
-                    className="text-slate-600 hover:bg-slate-200"
-                    disabled={index === rankedDomains.length - 1}
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveDomain(domain.id)}
-                    iconName="Trash2"
-                    className="text-error-600 hover:bg-error-50"
-                  />
-                </div>
+        {/* قسم ترتيب المجالات */}
+        <div className="md:col-span-8">
+          <div className="bg-black bg-opacity-90 rounded-xl border border-slate-700 p-4 h-full">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                <Icon name="ListOrdered" size={20} className="text-blue-400" />
+                <h3 className="text-lg font-semibold text-white">المجالات الأولى بالترتيب تنازلي</h3>
               </div>
-            </motion.div>
-          ))}
-
-          {rankedDomains.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-40 text-slate-400">
-              <Icon name="MoveVertical" size={48} className="mb-4 opacity-50" />
-              <p>اسحب وأفلت المجالات هنا لترتيبها حسب الأولوية</p>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleAddDomain}
+                iconName="Plus"
+                iconPosition="left"
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                إضافة جانب جديد
+              </Button>
             </div>
-          )}
-        </motion.div>
+
+            {/* منطقة السحب والإفلات */}
+            <div 
+              className="space-y-3 min-h-[400px] p-4 rounded-lg border-2 border-dashed border-slate-600 bg-black bg-opacity-50"
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            >
+              {rankedDomains.map((domain, index) => (
+                <motion.div
+                  key={domain.id}
+                  className={`p-4 rounded-lg border-2 shadow-md transition-all duration-300 ${getBackgroundColor(index)}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  layout
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                      <div className={`flex items-center justify-center w-8 h-8 rounded-full ${getNumberColor(index)} font-bold text-lg`}>
+                        {index + 1}
+                      </div>
+                      <div>
+                        <h4 className={`text-lg font-bold ${getTextColor(index)}`}>{domain.name}</h4>
+                        <p className="text-sm text-slate-600">{domain.description}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleMoveUp(index)}
+                        iconName="ChevronUp"
+                        className="text-slate-600 hover:bg-slate-200"
+                        disabled={index === 0}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleMoveDown(index)}
+                        iconName="ChevronDown"
+                        className="text-slate-600 hover:bg-slate-200"
+                        disabled={index === rankedDomains.length - 1}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveDomain(domain.id)}
+                        iconName="Trash2"
+                        className="text-error-600 hover:bg-error-50"
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+
+              {rankedDomains.length === 0 && (
+                <div className="flex flex-col items-center justify-center h-40 text-slate-400">
+                  <Icon name="MoveVertical" size={48} className="mb-4 opacity-50" />
+                  <p>اسحب وأفلت المجالات هنا لترتيبها حسب الأولوية</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* الجوانب المدرسية حسب المجالات */}
@@ -305,16 +348,6 @@ const SchoolAspectsPrioritySection = ({ planData, onPlanDataChange }) => {
             <Icon name="FileText" size={20} className="text-primary-600" />
             <h3 className="text-lg font-semibold text-text-primary">الجوانب المدرسية حسب المجالات</h3>
           </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowDetails(!showDetails)}
-            iconName={showDetails ? "EyeOff" : "Eye"}
-            iconPosition="left"
-            className="ml-2 rtl:ml-0 rtl:mr-2"
-          >
-            {showDetails ? "إخفاء التفاصيل" : "عرض التفاصيل"}
-          </Button>
           <Button
             variant="primary"
             size="sm"
@@ -373,7 +406,6 @@ const SchoolAspectsPrioritySection = ({ planData, onPlanDataChange }) => {
           <div className="text-center py-8 text-text-muted">
             <Icon name="FileText" size={48} className="mx-auto mb-4 opacity-50" />
             <p>اضغط على "توليد تلقائي" لإنشاء تحليل للمجالات المدرسية</p>
-            <p className="text-sm">أو اضغط على "عرض التفاصيل" لعرض التحليل الحالي</p>
           </div>
         )}
       </div>
