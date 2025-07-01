@@ -17,6 +17,7 @@ import EthicsSection from './components/EthicsSection';
 import GoalsSection from './components/GoalsSection';
 import ProgramsInitiativesSection from './components/ProgramsInitiativesSection';
 import ClassVisitPlanSection from './components/ClassVisitPlanSection';
+import ProgramTimelineSection from './components/ProgramTimelineSection';
 import DigitalTransformationSection from './components/DigitalTransformationSection';
 import PlanMonitoringSection from './components/PlanMonitoringSection';
 import RiskManagementSection from './components/RiskManagementSection';
@@ -136,41 +137,48 @@ const OperationalPlanCreation = () => {
     },
     {
       id: 15,
+      title: "نموذج الكشف الزمني لتحديد موعد تنفيذ البرامج",
+      description: "تحديد الإطار الزمني لتنفيذ البرامج",
+      icon: "Calendar",
+      component: ProgramTimelineSection
+    },
+    {
+      id: 16,
       title: "استراتيجية التحول الرقمي في التعليم",
       description: "خطة التحول الرقمي والتقنية",
       icon: "Monitor",
       component: DigitalTransformationSection
     },
     {
-      id: 16,
+      id: 17,
       title: "متابعة تنفيذ الخطة من قبل الإدارة المدرسية",
       description: "آليات المتابعة والإشراف",
       icon: "Eye",
       component: PlanMonitoringSection
     },
     {
-      id: 17,
+      id: 18,
       title: "إدارة المخاطر والتحديات المتوقعة",
       description: "تحديد وإدارة المخاطر المحتملة",
       icon: "AlertTriangle",
       component: RiskManagementSection
     },
     {
-      id: 18,
+      id: 19,
       title: "الشراكات المجتمعية والمؤسسية",
       description: "بناء شراكات مع المجتمع والمؤسسات",
       icon: "Handshake",
       component: CommunityPartnershipsSection
     },
     {
-      id: 19,
+      id: 20,
       title: "تنمية الكادر التعليمي والإداري",
       description: "خطة تطوير قدرات الكادر",
       icon: "GraduationCap",
       component: StaffDevelopmentSection
     },
     {
-      id: 20,
+      id: 21,
       title: "التقويم والمتابعة والجدول الزمني",
       description: "آليات التقويم والمتابعة",
       icon: "BarChart3",
