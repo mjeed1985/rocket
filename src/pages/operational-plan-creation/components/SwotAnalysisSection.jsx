@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 import Input from 'components/ui/Input';
+import aiGenerationService from '../../../services/aiGenerationService';
 
 const SwotAnalysisSection = ({ planData, onPlanDataChange }) => {
   const [swotData, setSwotData] = useState({
@@ -10,6 +11,7 @@ const SwotAnalysisSection = ({ planData, onPlanDataChange }) => {
     opportunities: planData?.swotAnalysis?.opportunities || [],
     threats: planData?.swotAnalysis?.threats || []
   });
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleAddItem = (category) => {
     const newItem = {
@@ -96,6 +98,52 @@ const SwotAnalysisSection = ({ planData, onPlanDataChange }) => {
     return colors[priority] || 'bg-slate-100 text-slate-800 border-slate-200';
   };
 
+  // توليد التحليل الرباعي باستخدام الذكاء الاصطناعي
+  const handleGenerateSwot = async () => {
+    setIsGenerating(true);
+    
+    try {
+      const schoolType = planData?.schoolType || 'حكومية';
+      const schoolLevel = planData?.schoolLevel || 'ابتدائية';
+      
+      const generatedSwot = await aiGenerationService.generateSwotAnalysis(schoolType, schoolLevel);
+      
+      // تحويل البيانات المولدة إلى التنسيق المطلوب
+      const formattedSwot = {
+        strengths: generatedSwot.strengths.map((text, index) => ({
+          id: Date.now() + index,
+          text,
+          priority: index < 2 ? 'high' : index < 4 ? 'medium' : 'low'
+        })),
+        weaknesses: generatedSwot.weaknesses.map((text, index) => ({
+          id: Date.now() + 100 + index,
+          text,
+          priority: index < 2 ? 'high' : index < 4 ? 'medium' : 'low'
+        })),
+        opportunities: generatedSwot.opportunities.map((text, index) => ({
+          id: Date.now() + 200 + index,
+          text,
+          priority: index < 2 ? 'high' : index < 4 ? 'medium' : 'low'
+        })),
+        threats: generatedSwot.threats.map((text, index) => ({
+          id: Date.now() + 300 + index,
+          text,
+          priority: index < 2 ? 'high' : index < 4 ? 'medium' : 'low'
+        }))
+      };
+      
+      setSwotData(formattedSwot);
+      updatePlanData(formattedSwot);
+      
+      alert('تم توليد التحليل الرباعي بنجاح!');
+    } catch (error) {
+      console.error('Error generating SWOT analysis:', error);
+      alert('حدث خطأ أثناء توليد التحليل الرباعي. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const renderSwotCategory = (category) => {
     const items = swotData[category] || [];
     const icon = getCategoryIcon(category);
@@ -107,9 +155,7 @@ const SwotAnalysisSection = ({ planData, onPlanDataChange }) => {
       <div className={`bg-${color}-50 rounded-xl border border-${color}-200 p-6 space-y-6`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <div className={`flex items-center justify-center w-10 h-10 bg-${color}-100 rounded-lg`}>
-              <Icon name={icon} size={20} className={`text-${color}-600`} />
-            </div>
+            <Icon name={icon} size={20} className={`text-${color}-600`} />
             <div>
               <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
               <p className="text-sm text-text-secondary">{description}</p>
@@ -197,6 +243,24 @@ const SwotAnalysisSection = ({ planData, onPlanDataChange }) => {
               </p>
             </div>
           </div>
+        </div>
+        
+        {/* زر توليد التحليل الرباعي */}
+        <div className="mt-6">
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={handleGenerateSwot}
+            disabled={isGenerating}
+            loading={isGenerating}
+            iconName={isGenerating ? "Loader2" : "Wand2"}
+            className="mx-auto"
+          >
+            {isGenerating ? 'جاري توليد التحليل الرباعي...' : 'توليد التحليل الرباعي (بالذكاء الاصطناعي)'}
+          </Button>
+          <p className="text-xs text-text-muted text-center mt-2">
+            يتم توليد التحليل الرباعي باستخدام الذكاء الاصطناعي بناءً على بيانات المدرسة
+          </p>
         </div>
       </div>
 

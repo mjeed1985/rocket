@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 import Input from 'components/ui/Input';
+import aiGenerationService from '../../../services/aiGenerationService';
 
 const ProgramsInitiativesSection = ({ planData, onPlanDataChange }) => {
   const [programs, setPrograms] = useState(
     planData?.programsInitiatives?.list || []
   );
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleAddProgram = () => {
     const newProgram = {
@@ -67,6 +69,43 @@ const ProgramsInitiativesSection = ({ planData, onPlanDataChange }) => {
     );
   };
 
+  // توليد البرامج والمبادرات باستخدام الذكاء الاصطناعي
+  const handleGeneratePrograms = async () => {
+    setIsGenerating(true);
+    
+    try {
+      // الحصول على الأهداف الاستراتيجية من بيانات الخطة
+      const strategicGoals = planData?.strategicGoals || [];
+      
+      // توليد البرامج والمبادرات
+      const generatedPrograms = await aiGenerationService.generatePrograms(strategicGoals);
+      
+      // تحويل البيانات المولدة إلى التنسيق المطلوب
+      const formattedPrograms = generatedPrograms.map((program, index) => ({
+        id: Date.now() + index,
+        name: program.name,
+        description: program.description,
+        objectives: program.objectives,
+        targetGroups: program.targetGroups,
+        timeline: program.timeline,
+        responsibleParty: 'وكيل المدرسة للشؤون التعليمية',
+        resources: program.resources,
+        evaluationMethod: 'استبانات قياس الأثر ومؤشرات الأداء',
+        status: 'planned'
+      }));
+      
+      setPrograms(formattedPrograms);
+      updatePlanData(formattedPrograms);
+      
+      alert('تم توليد البرامج والمبادرات بنجاح!');
+    } catch (error) {
+      console.error('Error generating programs:', error);
+      alert('حدث خطأ أثناء توليد البرامج والمبادرات. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -88,6 +127,24 @@ const ProgramsInitiativesSection = ({ planData, onPlanDataChange }) => {
               </p>
             </div>
           </div>
+        </div>
+        
+        {/* زر توليد البرامج والمبادرات */}
+        <div className="mt-6">
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={handleGeneratePrograms}
+            disabled={isGenerating}
+            loading={isGenerating}
+            iconName={isGenerating ? "Loader2" : "Wand2"}
+            className="mx-auto"
+          >
+            {isGenerating ? 'جاري توليد البرامج والمبادرات...' : 'توليد البرامج والمبادرات (بالذكاء الاصطناعي)'}
+          </Button>
+          <p className="text-xs text-text-muted text-center mt-2">
+            يتم توليد البرامج والمبادرات باستخدام الذكاء الاصطناعي بناءً على الأهداف الاستراتيجية
+          </p>
         </div>
       </div>
 

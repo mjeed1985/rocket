@@ -3,11 +3,13 @@ import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 import Input from 'components/ui/Input';
 import { CORE_VALUES_LIST } from '../../../lib/operationalPlanConstants';
+import aiGenerationService from '../../../services/aiGenerationService';
 
 const EthicsSection = ({ ethicsCharter, onChange }) => {
     const [customValues, setCustomValues] = useState(
         ethicsCharter?.core_values?.filter(v => v.isCustom) || []
     );
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const handleCharterChange = (e) => {
         onChange({ ...ethicsCharter, charter_text: e.target.value });
@@ -51,6 +53,36 @@ const EthicsSection = ({ ethicsCharter, onChange }) => {
         onChange({ ...ethicsCharter, core_values: [...nonCustomValues, ...updatedCustomValues] });
     };
 
+    // توليد الميثاق الأخلاقي باستخدام الذكاء الاصطناعي
+    const handleGenerateCharter = async () => {
+        setIsGenerating(true);
+        
+        try {
+            const generatedCharter = await aiGenerationService.generateEthicsCharter();
+            
+            // تحديث نص الميثاق
+            onChange({ 
+                ...ethicsCharter, 
+                charter_text: generatedCharter,
+                // اختيار بعض القيم الأساسية تلقائياً
+                core_values: [
+                    { ...CORE_VALUES_LIST[0], isCustom: false },
+                    { ...CORE_VALUES_LIST[1], isCustom: false },
+                    { ...CORE_VALUES_LIST[2], isCustom: false },
+                    { ...CORE_VALUES_LIST[6], isCustom: false },
+                    { ...CORE_VALUES_LIST[9], isCustom: false }
+                ]
+            });
+            
+            alert('تم توليد الميثاق الأخلاقي بنجاح!');
+        } catch (error) {
+            console.error('Error generating ethics charter:', error);
+            alert('حدث خطأ أثناء توليد الميثاق الأخلاقي. يرجى المحاولة مرة أخرى.');
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     return (
         <div className="space-y-8">
             <div className="bg-white rounded-xl border border-slate-200 p-6">
@@ -62,6 +94,24 @@ const EthicsSection = ({ ethicsCharter, onChange }) => {
                         <h3 className="text-lg font-semibold text-text-primary">ميثاق الأخلاقيات المهنية</h3>
                         <p className="text-sm text-text-secondary">حدد نص الميثاق الذي سيتم اعتماده في الخطة التشغيلية</p>
                     </div>
+                </div>
+                
+                {/* زر توليد الميثاق الأخلاقي */}
+                <div className="mb-6">
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        onClick={handleGenerateCharter}
+                        disabled={isGenerating}
+                        loading={isGenerating}
+                        iconName={isGenerating ? "Loader2" : "Wand2"}
+                        className="w-full"
+                    >
+                        {isGenerating ? 'جاري توليد الميثاق الأخلاقي...' : 'توليد الميثاق الأخلاقي (بالذكاء الاصطناعي)'}
+                    </Button>
+                    <p className="text-xs text-text-muted text-center mt-2">
+                        يتم توليد الميثاق الأخلاقي باستخدام الذكاء الاصطناعي بناءً على أفضل الممارسات التربوية
+                    </p>
                 </div>
                 
                 <div className="space-y-2">

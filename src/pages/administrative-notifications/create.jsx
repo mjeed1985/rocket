@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import UserNavigation from 'components/ui/UserNavigation';
 import LetterForm from './components/LetterForm';
@@ -7,6 +7,8 @@ import LetterPreviewDialog from './components/LetterPreviewDialog';
 import Button from 'components/ui/Button';
 import Icon from 'components/AppIcon';
 import html2canvas from 'html2canvas';
+import aiGenerationService from '../../services/aiGenerationService';
+import userManagementService from '../../services/userManagementService';
 
 const CreateLetter = () => {
   const { type } = useParams();
@@ -22,6 +24,8 @@ const CreateLetter = () => {
   const [editingLetterName, setEditingLetterName] = useState('');
   const [isApiKeyLoading, setIsApiKeyLoading] = useState(false);
   const [isModelReady, setIsModelReady] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isFemale, setIsFemale] = useState(false);
   
   const [letterData, setLetterData] = useState({
     title: '',
@@ -37,6 +41,29 @@ const CreateLetter = () => {
   });
   
   const [generatedLetter, setGeneratedLetter] = useState(null);
+  
+  // Load current user data
+  useEffect(() => {
+    const user = userManagementService.getCurrentUser();
+    setCurrentUser(user);
+    
+    // Check if user is female based on school category or gender
+    if (user) {
+      const userIsFemale = user.gender === 'female' || 
+                          user.schoolCategory === 'بنات' || 
+                          user.schoolCategory === 'رياض أطفال';
+      setIsFemale(userIsFemale);
+      
+      // Update signature based on gender
+      setLetterData(prev => ({
+        ...prev,
+        template: {
+          ...prev.template,
+          signature: userIsFemale ? 'مديرة المدرسة' : 'مدير المدرسة'
+        }
+      }));
+    }
+  }, []);
   
   // Get page title based on type
   const getPageTitle = () => {
@@ -72,36 +99,13 @@ const CreateLetter = () => {
     setIsGenerating(true);
     
     try {
-      // Simulate AI content generation
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      let generatedContent = '';
-      
-      if (type === 'notifications') {
-        generatedContent = `نحيط علمكم بأنه سيتم عقد ${letterData.title} يوم الأربعاء الموافق 15/12/1445هـ في تمام الساعة العاشرة صباحاً بقاعة الاجتماعات بالمدرسة.
-
-نأمل من الجميع الالتزام بالحضور في الموعد المحدد، والاستعداد لمناقشة جدول الأعمال المرفق.
-
-كما نود التنبيه على ضرورة إحضار جميع التقارير المطلوبة سابقاً، وإعداد ملخص عن أهم الإنجازات والتحديات خلال الفترة الماضية.
-
-شاكرين لكم تعاونكم واهتمامكم.`;
-      } else if (type === 'bulletins') {
-        generatedContent = `يسر إدارة المدرسة أن تعلن عن ${letterData.title} للعام الدراسي الحالي 1445/1446هـ.
-
-تتضمن النشرة المعلومات التالية:
-1. جدول الاختبارات النهائية للفصل الدراسي الأول
-2. مواعيد تسليم الدرجات والتقارير النهائية
-3. خطة الأنشطة اللاصفية للفصل الدراسي الثاني
-4. إرشادات وتوجيهات عامة للمعلمين
-
-نرجو من جميع المعلمين الاطلاع على محتوى النشرة والالتزام بالتوجيهات الواردة فيها، وفي حال وجود أي استفسار يرجى التواصل مع وكيل المدرسة.`;
-      } else {
-        generatedContent = `إشارة إلى الموضوع أعلاه بشأن ${letterData.title}، وبناءً على التعاميم الواردة من وزارة التعليم بهذا الخصوص.
-
-نفيدكم بأن إدارة المدرسة قد قامت بتنفيذ جميع الإجراءات اللازمة وفق التوجيهات الواردة، وتم إعداد التقارير المطلوبة حسب النماذج المعتمدة.
-
-نأمل منكم الاطلاع والإفادة بما يلزم حيال ذلك، مع العلم أننا على استعداد تام لتقديم أي معلومات إضافية أو إيضاحات مطلوبة.`;
-      }
+      // استخدام خدمة الذكاء الاصطناعي لتوليد المحتوى
+      const generatedContent = await aiGenerationService.generateLetterContent(
+        type, 
+        letterData.title, 
+        letterData.recipient,
+        letterData.gender === 'girls' ? 'female' : 'male'
+      );
       
       setLetterData(prev => ({
         ...prev,
@@ -126,7 +130,7 @@ const CreateLetter = () => {
       
       const finalLetter = {
         ...letterData,
-        schoolName: 'مدرسة الأمل الابتدائية',
+        schoolName: currentUser?.schoolName || 'مدرسة الأمل الابتدائية',
         date: currentDate,
         content: letterData.customContent,
         createdAt: new Date().toISOString(),
@@ -224,7 +228,7 @@ const CreateLetter = () => {
         header: getTemplateHeader(),
         greeting: 'السلام عليكم ورحمة الله وبركاته،،،',
         closing: 'وتفضلوا بقبول فائق الاحترام والتقدير،،،',
-        signature: 'مدير المدرسة'
+        signature: isFemale ? 'مديرة المدرسة' : 'مدير المدرسة'
       }
     });
     setGeneratedLetter(null);

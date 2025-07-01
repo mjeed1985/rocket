@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 import { motion } from 'framer-motion';
+import aiGenerationService from '../../../services/aiGenerationService';
 
 const SchoolAspectsPrioritySection = ({ planData, onPlanDataChange }) => {
   // المجالات التعليمية الرئيسية
@@ -28,6 +29,12 @@ const SchoolAspectsPrioritySection = ({ planData, onPlanDataChange }) => {
   
   // حالة عرض تفاصيل المجالات
   const [showDetails, setShowDetails] = useState(false);
+  
+  // حالة توليد التحليل
+  const [isGenerating, setIsGenerating] = useState(false);
+  
+  // حالة تحليل المجالات
+  const [domainAnalysis, setDomainAnalysis] = useState({});
   
   // تهيئة المجالات المتاحة عند بدء التحميل
   useEffect(() => {
@@ -181,20 +188,42 @@ const SchoolAspectsPrioritySection = ({ planData, onPlanDataChange }) => {
   };
 
   // توليد تلقائي لتحليل المجالات
-  const generateDomainAnalysis = () => {
-    const analysis = {
-      'القيادة والإدارة المدرسية': 'فعالية القيادة والإدارة المدرسية',
-      'التعليم والتعلم': 'جودة عمليات التعليم والتعلم',
-      'البيئة المدرسية': 'جودة البيئة المدرسية وملاءمتها للتعلم',
-      'الشراكة الأسرية والمجتمعية': 'التواصل والتعاون مع المجتمع المحلي',
-      'التحصيل الدراسي': 'مستوى تحصيل الطلاب الأكاديمي',
-      'الإتجاهات والسلوك': 'سلوكيات الطلاب واتجاهاتهم الإيجابية',
-      'الصحة واللياقة العامة': 'الصحة البدنية والنفسية للطلاب'
-    };
-
-    setShowDetails(true);
+  const generateDomainAnalysis = async () => {
+    if (rankedDomains.length === 0) {
+      alert('يرجى ترتيب المجالات أولاً قبل توليد التحليل');
+      return;
+    }
     
-    return analysis;
+    setIsGenerating(true);
+    
+    try {
+      // استخدام خدمة الذكاء الاصطناعي لتوليد تحليل المجالات
+      const analysis = await aiGenerationService.generateDomainAnalysis(rankedDomains);
+      setDomainAnalysis(analysis);
+      setShowDetails(true);
+    } catch (error) {
+      console.error('Error generating domain analysis:', error);
+      
+      // في حالة الفشل، استخدم تحليل افتراضي
+      const fallbackAnalysis = {
+        'القيادة والإدارة المدرسية': 'فعالية القيادة والإدارة المدرسية تحتاج إلى تطوير من خلال تعزيز مهارات القيادة وتحسين آليات اتخاذ القرار.',
+        'التعليم والتعلم': 'جودة عمليات التعليم والتعلم تتطلب تحسين طرق التدريس واستخدام استراتيجيات تعليمية حديثة.',
+        'البيئة المدرسية': 'جودة البيئة المدرسية وملاءمتها للتعلم بحاجة إلى تطوير من خلال تحسين المرافق وتوفير بيئة آمنة ومحفزة.',
+        'الشراكة الأسرية والمجتمعية': 'التواصل والتعاون مع المجتمع المحلي يحتاج إلى تعزيز من خلال برامج تواصل فعالة وشراكات مجتمعية.',
+        'التحصيل الدراسي': 'مستوى تحصيل الطلاب الأكاديمي يتطلب تحسين من خلال تطوير أساليب التقييم وبرامج الدعم الأكاديمي.',
+        'الإتجاهات والسلوك': 'سلوكيات الطلاب واتجاهاتهم الإيجابية تحتاج إلى تعزيز من خلال برامج تربوية وأنشطة هادفة.',
+        'الصحة واللياقة العامة': 'الصحة البدنية والنفسية للطلاب تتطلب اهتماماً من خلال برامج توعوية وأنشطة رياضية.'
+      };
+      
+      setDomainAnalysis(fallbackAnalysis);
+      setShowDetails(true);
+      
+      alert('حدث خطأ أثناء توليد التحليل. تم استخدام تحليل افتراضي.');
+    } finally {
+      setIsGenerating(false);
+    }
+    
+    return domainAnalysis;
   };
 
   return (
@@ -352,10 +381,12 @@ const SchoolAspectsPrioritySection = ({ planData, onPlanDataChange }) => {
             variant="primary"
             size="sm"
             onClick={generateDomainAnalysis}
-            iconName="Wand2"
+            iconName={isGenerating ? "Loader2" : "Wand2"}
             iconPosition="left"
+            loading={isGenerating}
+            disabled={isGenerating}
           >
-            توليد تلقائي
+            {isGenerating ? "جاري التوليد..." : "توليد تلقائي"}
           </Button>
         </div>
 
@@ -390,7 +421,7 @@ const SchoolAspectsPrioritySection = ({ planData, onPlanDataChange }) => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-text-secondary">
-                          {generateDomainAnalysis()[domain.name] || 
+                          {domainAnalysis[domain.name] || 
                            'يحتاج هذا المجال إلى تحليل وتقييم شامل لتحديد نقاط القوة والضعف وفرص التحسين.'}
                         </div>
                       </td>
