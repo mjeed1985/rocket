@@ -10,6 +10,7 @@ import EducationStrategicGoalsSection from './components/EducationStrategicGoals
 import SchoolStaffSection from './components/SchoolStaffSection';
 import PlanSourcesSection from './components/PlanSourcesSection';
 import SchoolAspectsSection from './components/SchoolAspectsSection';
+import SchoolAspectsPrioritySection from './components/SchoolAspectsPrioritySection';
 import SelfEvaluationSection from './components/SelfEvaluationSection';
 import SwotAnalysisSection from './components/SwotAnalysisSection';
 import EthicsSection from './components/EthicsSection';
@@ -86,83 +87,90 @@ const OperationalPlanCreation = () => {
     },
     {
       id: 8,
+      title: "الجوانب المدرسية العامة وترتيبها من قبل لجنة التميز والجودة",
+      description: "أولويات التطوير والتحسين",
+      icon: "ListOrdered",
+      component: SchoolAspectsPrioritySection
+    },
+    {
+      id: 9,
       title: "مجالات التقويم الذاتي والمستفيدون",
       description: "تحديد مجالات التقويم والفئات المستهدفة",
       icon: "ClipboardCheck",
       component: SelfEvaluationSection
     },
     {
-      id: 9,
+      id: 10,
       title: "التحليل الرباعي (SWOT)",
       description: "تحليل نقاط القوة والضعف والفرص والتهديدات",
       icon: "PieChart",
       component: SwotAnalysisSection
     },
     {
-      id: 10,
+      id: 11,
       title: "الميثاق الأخلاقي والقيم الأساسية",
       description: "تحديد الميثاق الأخلاقي والقيم",
       icon: "Shield",
       component: EthicsSection
     },
     {
-      id: 11,
+      id: 12,
       title: "الأهداف الاستراتيجية والتفصيلية للمدرسة",
       description: "تحديد الأهداف الاستراتيجية والتفصيلية",
       icon: "Target",
       component: GoalsSection
     },
     {
-      id: 12,
+      id: 13,
       title: "البرامج والمبادرات التنفيذية",
       description: "تحديد برامج ومبادرات تنفيذ الخطة",
       icon: "Lightbulb",
       component: ProgramsInitiativesSection
     },
     {
-      id: 13,
+      id: 14,
       title: "خطة زيارات المدير للمعلمين",
       description: "جدول زيارات المدير للفصول",
       icon: "Calendar",
       component: ClassVisitPlanSection
     },
     {
-      id: 14,
+      id: 15,
       title: "استراتيجية التحول الرقمي في التعليم",
       description: "خطة التحول الرقمي والتقنية",
       icon: "Monitor",
       component: DigitalTransformationSection
     },
     {
-      id: 15,
+      id: 16,
       title: "متابعة تنفيذ الخطة من قبل الإدارة المدرسية",
       description: "آليات المتابعة والإشراف",
       icon: "Eye",
       component: PlanMonitoringSection
     },
     {
-      id: 16,
+      id: 17,
       title: "إدارة المخاطر والتحديات المتوقعة",
       description: "تحديد وإدارة المخاطر المحتملة",
       icon: "AlertTriangle",
       component: RiskManagementSection
     },
     {
-      id: 17,
+      id: 18,
       title: "الشراكات المجتمعية والمؤسسية",
       description: "بناء شراكات مع المجتمع والمؤسسات",
       icon: "Handshake",
       component: CommunityPartnershipsSection
     },
     {
-      id: 18,
+      id: 19,
       title: "تنمية الكادر التعليمي والإداري",
       description: "خطة تطوير قدرات الكادر",
       icon: "GraduationCap",
       component: StaffDevelopmentSection
     },
     {
-      id: 19,
+      id: 20,
       title: "التقويم والمتابعة والجدول الزمني",
       description: "آليات التقويم والمتابعة",
       icon: "BarChart3",
