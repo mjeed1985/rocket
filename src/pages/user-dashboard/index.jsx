@@ -75,12 +75,12 @@ const UserDashboard = () => {
       primaryAction: {
         label: 'التبليغات الجديدة',
         icon: 'Mail',
-        href: '/user-dashboard/communications'
+        href: '/administrative-notifications'
       },
       secondaryAction: {
         label: 'إرسال تبليغ',
         icon: 'Send',
-        href: '/user-dashboard/send-communication'
+        href: '/administrative-notifications/notifications/create'
       }
     },
     {
@@ -104,12 +104,12 @@ const UserDashboard = () => {
       primaryAction: {
         label: 'إنشاء نشرة',
         icon: 'Plus',
-        href: '/user-dashboard/create-bulletin'
+        href: '/administrative-notifications/bulletins/create'
       },
       secondaryAction: {
         label: 'النشرات السابقة',
         icon: 'Archive',
-        href: '/user-dashboard/bulletins'
+        href: '/administrative-notifications/bulletins/saved'
       }
     },
     {
@@ -133,12 +133,12 @@ const UserDashboard = () => {
       primaryAction: {
         label: 'كتابة خطاب',
         icon: 'PenTool',
-        href: '/user-dashboard/create-letter'
+        href: '/administrative-notifications/external-letters/create'
       },
       secondaryAction: {
         label: 'الخطابات المرسلة',
         icon: 'Send',
-        href: '/user-dashboard/letters'
+        href: '/administrative-notifications/external-letters/saved'
       }
     }
   ];

@@ -1,9 +1,11 @@
 import React from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 
 const ModuleCard = ({ module }) => {
+  const navigate = useNavigate();
+
   const getGradientClass = (type) => {
     const gradients = {
       'operational-plans': 'from-blue-500 to-blue-600',
@@ -18,6 +20,14 @@ const ModuleCard = ({ module }) => {
     if (percentage >= 80) return 'bg-success-500';
     if (percentage >= 50) return 'bg-warning-500';
     return 'bg-error-500';
+  };
+
+  const handlePrimaryAction = () => {
+    navigate(module.primaryAction.href);
+  };
+
+  const handleSecondaryAction = () => {
+    navigate(module.secondaryAction.href);
   };
 
   return (
@@ -94,7 +104,7 @@ const ModuleCard = ({ module }) => {
             size="sm"
             iconName={module.primaryAction.icon}
             iconPosition="right"
-            onClick={() => window.location.href = module.primaryAction.href}
+            onClick={handlePrimaryAction}
             className="flex-1"
           >
             {module.primaryAction.label}
@@ -105,7 +115,7 @@ const ModuleCard = ({ module }) => {
             size="sm"
             iconName={module.secondaryAction.icon}
             iconPosition="right"
-            onClick={() => window.location.href = module.secondaryAction.href}
+            onClick={handleSecondaryAction}
             className="flex-1"
           >
             {module.secondaryAction.label}

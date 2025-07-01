@@ -6,6 +6,7 @@ import LetterPreview from './components/LetterPreview';
 import LetterPreviewDialog from './components/LetterPreviewDialog';
 import Button from 'components/ui/Button';
 import Icon from 'components/AppIcon';
+import html2canvas from 'html2canvas';
 
 const CreateLetter = () => {
   const { type } = useParams();
@@ -19,6 +20,8 @@ const CreateLetter = () => {
   const [letterImage, setLetterImage] = useState(null);
   const [imageDataUrl, setImageDataUrl] = useState(null);
   const [editingLetterName, setEditingLetterName] = useState('');
+  const [isApiKeyLoading, setIsApiKeyLoading] = useState(false);
+  const [isModelReady, setIsModelReady] = useState(true);
   
   const [letterData, setLetterData] = useState({
     title: '',
@@ -136,13 +139,24 @@ const CreateLetter = () => {
       setGeneratedLetter(finalLetter);
       setStep('preview');
       
-      // Simulate image generation delay
+      // Generate image from preview
       setTimeout(() => {
         if (letterPreviewRef.current) {
-          // In a real implementation, we would use html2canvas or similar
-          // For now, we'll just simulate with a placeholder image
-          setImageDataUrl('https://via.placeholder.com/595x842?text=Generated+Letter');
-          setIsPreviewDialogOpen(true);
+          html2canvas(letterPreviewRef.current, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: null
+          }).then(canvas => {
+            const dataUrl = canvas.toDataURL('image/png');
+            setImageDataUrl(dataUrl);
+            setIsPreviewDialogOpen(true);
+          }).catch(err => {
+            console.error('Error generating canvas:', err);
+            // Fallback to a placeholder image
+            setImageDataUrl('https://via.placeholder.com/595x842?text=Generated+Letter');
+            setIsPreviewDialogOpen(true);
+          });
         }
       }, 1000);
       
@@ -297,8 +311,8 @@ const CreateLetter = () => {
                 onGenerateContent={handleGenerateContent}
                 onCreateFinalLetter={handleCreateFinalLetter}
                 isCreatingPreview={isCreatingPreview}
-                isApiKeyLoading={false}
-                isModelReady={true}
+                isApiKeyLoading={isApiKeyLoading}
+                isModelReady={isModelReady}
               />
             ) : (
               <LetterPreview
