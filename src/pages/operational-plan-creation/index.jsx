@@ -24,6 +24,7 @@ import RiskManagementSection from './components/RiskManagementSection';
 import CommunityPartnershipsSection from './components/CommunityPartnershipsSection';
 import StaffDevelopmentSection from './components/StaffDevelopmentSection';
 import EvaluationSection from './components/EvaluationSection';
+import LearningOutcomesSection from './components/LearningOutcomesSection';
 import Icon from 'components/AppIcon';
 import Button from 'components/ui/Button';
 
@@ -158,27 +159,34 @@ const OperationalPlanCreation = () => {
     },
     {
       id: 18,
+      title: "خطة تحسين نواتج التعلم",
+      description: "تطوير وتحسين نواتج التعلم الأكاديمية والشخصية",
+      icon: "BookOpen",
+      component: LearningOutcomesSection
+    },
+    {
+      id: 19,
       title: "إدارة المخاطر والتحديات المتوقعة",
       description: "تحديد وإدارة المخاطر المحتملة",
       icon: "AlertTriangle",
       component: RiskManagementSection
     },
     {
-      id: 19,
+      id: 20,
       title: "الشراكات المجتمعية والمؤسسية",
       description: "بناء شراكات مع المجتمع والمؤسسات",
       icon: "Handshake",
       component: CommunityPartnershipsSection
     },
     {
-      id: 20,
+      id: 21,
       title: "تنمية الكادر التعليمي والإداري",
       description: "خطة تطوير قدرات الكادر",
       icon: "GraduationCap",
       component: StaffDevelopmentSection
     },
     {
-      id: 21,
+      id: 22,
       title: "التقويم والمتابعة والجدول الزمني",
       description: "آليات التقويم والمتابعة",
       icon: "BarChart3",
