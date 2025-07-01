@@ -2,7 +2,7 @@
 class AIGenerationService {
   constructor() {
     this.apiKey = 'AIzaSyBXwjPJpm27xQ-MNHNFQSAdiJBx1TrDEp0';
-    this.baseUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro:generateContent';
+    this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
   }
 
   // توليد محتوى باستخدام الذكاء الاصطناعي
