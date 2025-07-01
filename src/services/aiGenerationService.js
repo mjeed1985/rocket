@@ -3,7 +3,7 @@ class AIGenerationService {
   constructor() {
     // استخدام مفتاح API من ملف البيئة أو استخدام قيمة افتراضية في حالة عدم وجوده
     this.apiKey = import.meta.env.VITE_GOOGLE_API_KEY || '';
-    this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+    this.baseUrl = 'https://generativelanguage.googleapis.com/v1';
   }
 
   // توليد محتوى باستخدام الذكاء الاصطناعي
@@ -14,7 +14,7 @@ class AIGenerationService {
         throw new Error('مفتاح Google API غير متوفر. يرجى التحقق من ملف .env');
       }
       
-      const url = `${this.baseUrl}?key=${this.apiKey}`;
+      const url = `${this.baseUrl}/models/gemini-pro:generateContent?key=${this.apiKey}`;
       
       const requestBody = {
         contents: [
